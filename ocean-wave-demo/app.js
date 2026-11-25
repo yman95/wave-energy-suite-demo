@@ -220,7 +220,7 @@
     });
     const s0 = stations[Object.keys(stations)[0]];
     $('lead').textContent = `T+${H[hi]} h`;
-    $('valid').textContent = fmtT(addH(s0.t0, H[hi]));
+    $('valid').textContent = fmtT(addH(DATA.issued || s0.t0, H[hi]));
     legend();
     Object.entries(gaugeMarkers).forEach(([gid, cm]) => {
       const f = floodAt(gid, hi).lvl;
@@ -261,20 +261,23 @@
       $('skillBody').innerHTML = '<p class="note">Benchmark summary not bundled in this file. Re-run pipeline/run_forecast_v2.py or pipeline/make_replay.py.</p>';
     } else {
       const sc = bm.live_scorecard;
-      const scHtml = sc ? `<div class="section"><h3>Operational Verification Scorecard (${sc.mode === 'live_rolling' ? 'Live Rolling Archive' : 'Verifying Replay Pairs'})</h3>
+      const scTitle = sc && sc.mode === 'live_rolling'
+        ? `Live 30-Day Rolling Scorecard (${sc.n_live_wave_pairs ?? 0} verified wave pairs across ${sc.archived_snapshots ?? 0} runs)`
+        : `Live Rolling Archive (${sc ? (sc.n_live_wave_pairs ?? 0) : 0} live pairs · showing Storm Replay Baseline)`;
+      const scHtml = sc ? `<div class="section"><h3>${scTitle}</h3>
         <table class="modal-tbl"><thead><tr><th>Mode</th><th>Archived Runs</th><th>Wave Pairs</th><th>AI Hs RMSE</th><th>Raw Hs RMSE</th><th>Cov80</th><th>Surge RMSE</th></tr></thead>
         <tbody><tr><td>${sc.mode}</td><td>${sc.archived_snapshots ?? 0}</td><td>${sc.n_wave_pairs ?? 0}</td><td>${sc.ai_hs_rmse_m != null ? sc.ai_hs_rmse_m.toFixed(3) + ' m' : '–'}</td><td>${sc.raw_hs_rmse_m != null ? sc.raw_hs_rmse_m.toFixed(3) + ' m' : '–'}</td><td>${sc.cov80_pct != null ? sc.cov80_pct.toFixed(1) + '%' : '–'}</td><td>${sc.surge_rmse_m != null ? sc.surge_rmse_m.toFixed(3) + ' m' : '–'}</td></tr></tbody></table></div>` : '';
       const wRows = (bm.wave_overall || []).map(r => `<tr><td>${r.model}</td><td>${r.hs_rmse.toFixed(3)} m</td><td>${r.p_mae.toFixed(2)} kW/m</td><td>${r.te_mae != null ? r.te_mae.toFixed(3) + ' s' : '–'}</td><td>${r.crps.toFixed(3)}</td><td>${r.cov80.toFixed(1)}%</td></tr>`).join('');
       const sRows = (bm.surge_by_lead || []).filter(r => [1, 6, 12, 24, 48, 72].includes(r.h)).map(r => `<tr><td>+${r.h} h</td><td>${r.persist.toFixed(3)} m</td><td>${r.ai.toFixed(3)} m</td><td>${r.cov80.toFixed(1)}%</td><td>${r.hit.toFixed(1)}%</td></tr>`).join('');
       const iv = bm.intl_validation;
-      const ivRows = (iv && iv.regions || []).map(r => `<tr><td>${r.region}<br><small style="opacity:.7">${r.source}</small></td><td>${r.n_buoys} (${(r.n_pairs / 1000).toFixed(0)}k hrs)</td><td>${r.raw_hs_rmse.toFixed(3)} m</td><td>${r.na_zeroshot_rmse != null ? r.na_zeroshot_rmse.toFixed(3) + ' m' : '–'}</td><td><b>${(r.local_virtual_rmse ?? r.ai_hs_rmse).toFixed(3)} m</b></td><td><b>${r.local_buoy_rmse != null ? r.local_buoy_rmse.toFixed(3) + ' m' : '–'}</b></td><td>${r.te_mae_obs != null ? r.te_mae_obs.toFixed(3) + ' s' : '–'}</td><td>${r.cov80_pct.toFixed(1)}%${r.buoy_cov80_pct != null ? ' / ' + r.buoy_cov80_pct.toFixed(1) + '%' : ''}</td></tr>`).join('');
-      const ivHtml = ivRows ? `<div class="section"><h3>Regional Models — Held-Out 2025–2026 Validation (Real Buoys)</h3>
-        <table class="modal-tbl"><thead><tr><th>Region &amp; Real Feed</th><th>Buoys (Pairs)</th><th>Raw Hs</th><th>NA Zero-Shot</th><th>Local Virtual</th><th>Local Buoy</th><th>Obs Te MAE</th><th>Cov80 (Virt / Buoy)</th></tr></thead><tbody>${ivRows}</tbody></table>
-        <p class="note" style="margin-top:6px">Locally trained on 2022–2024 real Ireland ERDDAP &amp; Australia IMOS archives and evaluated strictly out-of-sample on 2025–2026. New Zealand &amp; Chile remain unvalidated zero-shot transfer.</p></div>` : '';
+      const ivRows = (iv && iv.regions || []).map(r => `<tr><td>${r.region}<br><small style="opacity:.7">${r.source}${r.te_obs_source ? ' · ' + r.te_obs_source : ''}</small></td><td>${r.n_buoys} (${(r.n_pairs / 1000).toFixed(0)}k pairs)</td><td>${r.raw_hs_rmse.toFixed(3)} m</td><td>${r.na_zeroshot_rmse != null ? r.na_zeroshot_rmse.toFixed(3) + ' m' : '–'}</td><td><b>${(r.local_virtual_rmse ?? r.ai_hs_rmse).toFixed(3)} m</b></td><td>${r.loso_virtual_rmse != null ? r.loso_virtual_rmse.toFixed(3) + ' m' : '–'}</td><td><b>${r.local_buoy_rmse != null ? r.local_buoy_rmse.toFixed(3) + ' m' : '–'}</b></td><td>${r.te_mae_obs != null ? r.te_mae_obs.toFixed(3) + ' s' : '–'}</td><td>${r.cov80_pct.toFixed(1)}%${r.buoy_cov80_pct != null ? ' / ' + r.buoy_cov80_pct.toFixed(1) + '%' : ''}</td></tr>`).join('');
+      const ivHtml = ivRows ? `<div class="section"><h3>Regional Models — Held-Out 2025–2026 &amp; Spatial LOSO Validation (Real Buoys)</h3>
+        <table class="modal-tbl"><thead><tr><th>Region &amp; Real Feed</th><th>Buoys (Pairs)</th><th>Raw Hs</th><th>NA Zero-Shot</th><th>Local Virtual</th><th>Spatial LOSO</th><th>Local Buoy</th><th>Obs Te MAE</th><th>Cov80 (Virt / Buoy)</th></tr></thead><tbody>${ivRows}</tbody></table>
+        <p class="note" style="margin-top:6px">Locally trained on 2022–2024 real Ireland ERDDAP &amp; Australia IMOS archives (spatial LOSO CV + conformal calibration) and evaluated strictly out-of-sample on 2025–2026. New Zealand &amp; Chile remain unvalidated zero-shot preview zones.</p></div>` : '';
       $('skillBody').innerHTML = scHtml + `
         <div class="section"><h3>North America Held-Out Mean (2024–2025)</h3>
           <table class="modal-tbl"><thead><tr><th>Model</th><th>Hs RMSE</th><th>Power MAE</th><th>Spectral Te MAE</th><th>CRPS</th><th>Cov80</th></tr></thead><tbody>${wRows}</tbody></table></div>` + ivHtml + `
-        <div class="section"><h3>Atmospheric-Forced Storm Surge by Lead (26 NA Gauges)</h3>
+        <div class="section"><h3>Atmospheric-Forced Storm Surge by Lead (26 NA Hindcast Gauges)</h3>
           <table class="modal-tbl"><thead><tr><th>Lead</th><th>Persistence RMSE</th><th>Surge AI RMSE</th><th>Cov80</th><th>Flood Hit Rate</th></tr></thead><tbody>${sRows}</tbody></table></div>`;
     }
     $('skillModal').hidden = false;
@@ -523,9 +526,10 @@
         }
         if (validCnt >= 24) {
           const hs = [[], [], []], P = [[], [], []];
+          const farRef = idw.ranked[0].d > 600;
           for (let i = 0; i < N; i++) {
-            const biasRatio = idw.ranked.reduce((t, r, k) => t + idw.w[k] * (r.s.hs[1][i] / Math.max(r.s.raw_hs?.[i] || r.s.hs[1][i], 0.05)), 0);
-            const relHalf = idw.ranked.reduce((t, r, k) => t + idw.w[k] * ((r.s.hs[2][i] - r.s.hs[0][i]) / (2 * Math.max(r.s.hs[1][i], 0.05))), 0);
+            const biasRatio = farRef ? 1.0 : idw.ranked.reduce((t, r, k) => t + idw.w[k] * (r.s.hs[1][i] / Math.max(r.s.raw_hs?.[i] || r.s.hs[1][i], 0.05)), 0);
+            const relHalf = farRef ? 0.25 : idw.ranked.reduce((t, r, k) => t + idw.w[k] * ((r.s.hs[2][i] - r.s.hs[0][i]) / (2 * Math.max(r.s.hs[1][i], 0.05))), 0);
             const q50 = Math.max(0, oHs[i] * Math.max(0.4, Math.min(2.0, biasRatio)));
             const q10 = Math.max(0, q50 * (1 - relHalf)), q90 = Math.max(q50, q50 * (1 + relHalf));
             hs[0].push(+q10.toFixed(2)); hs[1].push(+q50.toFixed(2)); hs[2].push(+q90.toFixed(2));
@@ -534,7 +538,7 @@
             P[2].push(+(0.4906 * q90 * q90 * oTe[i]).toFixed(1));
           }
           virtualStations['v:custom'] = Object.assign({}, baseV, {
-            fc_model: `Live Open-Meteo Marine + IDW calibration (${refNames})`,
+            fc_model: farRef ? 'Live Open-Meteo Marine (uncalibrated open-ocean fallback)' : `Live Open-Meteo Marine + IDW calibration (${refNames})`,
             hs, P, te: oTe.map(v => +v.toFixed(2)), raw_hs: oHs.map(v => +v.toFixed(2)),
           });
           if (selected === 'v:custom') refresh();
@@ -553,7 +557,7 @@
   function renderGauge(gid) {
     const g = gauges[gid], w = floodAt(gid, hi);
     $('detail').innerHTML = `<div class="d-head"><h2>${g.name}</h2><div class="meta">${g.agency === 'DFO' ? 'DFO Canadian Hydrographic Service' : 'NOAA CO-OPS'} tide gauge ${gid} · forecast from ${fmtT(new Date(g.t0))}</div>
-      <div class="chips"><span class="chip">Municipal</span><span class="chip">waves from ERA5 point (no live buoy)</span></div>
+      <div class="chips"><span class="chip">Municipal</span><span class="chip">${isReplay ? 'waves from ERA5 point (no live buoy)' : 'waves from live forecast grid (tide gauge)'}</span></div>
       <div class="exp-row"><button class="exp-btn" id="gPrintBtn" type="button">Print EOC Brief</button></div></div>
       <div class="status" style="background:${LVL[w.lvl].c}22;border:1px solid ${LVL[w.lvl].c}66"><span class="dot" style="background:${LVL[w.lvl].c}"></span><div>${LVL[w.lvl].t} at T+${H[hi]} h<small>${w.r.join('<br>') || 'Water level below flood thresholds.'}</small></div></div>` + gaugeChart(gid);
     if ($('gPrintBtn')) $('gPrintBtn').onclick = () => window.print();
@@ -579,8 +583,16 @@
     const titleMeta = s.isVirtual
       ? `Virtual Buoy · ${s.lat.toFixed(2)}°, ${s.lon.toFixed(2)}°${s.depth != null ? ` · ${s.depth} m depth · ${s.dist_shore_km} km offshore` : ''} · from ${fmtT(new Date(s.t0))}`
       : `${agencyLabel} · ${s.region} · ${s.lat.toFixed(2)}°, ${s.lon.toFixed(2)}° · forecast from ${fmtT(new Date(s.t0))}`;
+    const valTier = s.validation_tier || ((s.lat >= 35 && s.lat <= 65 && s.lon >= -20 && s.lon <= 15) ? 'eu_local_validated'
+      : (s.lat >= -48 && s.lat <= -10 && s.lon >= 110 && s.lon <= 160) ? 'au_local_validated'
+      : (s.lon >= -175 && s.lon <= -45 && s.lat >= 14 && s.region !== 'New Zealand' && s.region !== 'Chile') ? 'na_local_validated'
+      : 'zero_shot_preview');
+    const isZeroShot = valTier.startsWith('zero_shot');
+    const tierChip = isZeroShot
+      ? '<span class="chip" style="border-color:rgba(250,204,21,.45);color:#facc15;background:rgba(250,204,21,.12)">⚠ Zero-Shot Preview (Unvalidated Region)</span>'
+      : '<span class="chip" style="border-color:rgba(52,211,153,.4);color:#34d399;background:rgba(52,211,153,.1)">✓ Locally Validated</span>';
     let html = `<div class="d-head"><h2>${s.name}</h2><div class="meta">${titleMeta}</div>
-      <div class="chips">${s.isVirtual ? '<span class="chip">Virtual Buoy (obs-free)</span>' : (s.use || '').split('_').filter(Boolean).map(u => `<span class="chip">${{ mre: 'Wave energy site', municipal: 'Municipal', offshore: 'Offshore ref' }[u] || u}</span>`).join('')}${s.fc_model ? `<span class="chip">${s.fc_model}</span>` : ''}${gids.map(x => `<span class="chip">${gauges[x].agency === 'DFO' ? 'DFO' : 'NOAA'} tide gauge ${gauges[x].name}</span>`).join('')}${!s.isVirtual && s.obs_available === false ? '<span class="chip">no live obs</span>' : ''}</div></div>`;
+      <div class="chips">${s.isVirtual ? '<span class="chip">Virtual Buoy (obs-free)</span>' : (s.use || '').split('_').filter(Boolean).map(u => `<span class="chip">${{ mre: 'Wave energy site', municipal: 'Municipal', offshore: 'Offshore ref' }[u] || u}</span>`).join('')}${tierChip}${s.fc_model ? `<span class="chip">${s.fc_model}</span>` : ''}${gids.map(x => `<span class="chip">${gauges[x].agency === 'DFO' ? 'DFO' : 'NOAA'} tide gauge ${gauges[x].name}</span>`).join('')}${!s.isVirtual && s.obs_available === false ? '<span class="chip">no live obs</span>' : ''}</div></div>`;
     html += `<div class="status" style="background:${LVL[w.lvl].c}22;border:1px solid ${LVL[w.lvl].c}66"><span class="dot" style="background:${LVL[w.lvl].c}"></span><div>${LVL[w.lvl].t} at T+${H[hi]} h<small>${w.r.join('<br>') || 'Conditions within normal range for this site.'}</small></div></div>`;
     const obs = rel(s.obs_hist, s.t0), fut = rel(s.obs_future, s.t0);
     const hsEff = effectiveHs(sid, s);
@@ -597,22 +609,24 @@
     }
     // planning window & WEC power matrix + multi-constraint O&M weather-window finder
     const a = Math.max(1, Math.min(72, win.a)), b = Math.max(a, Math.min(72, win.b)), idx = H.map((h, i) => i).filter(i => H[i] >= a && H[i] <= b);
-    const meanP = idx.reduce((t, i) => t + s.P[1][i], 0) / idx.length;
+    const sc = calInfo ? calInfo.scale : 1.0;
+    const pEff = sc === 1.0 ? s.P : s.P.map(band => band.map(v => +(v * sc * sc).toFixed(1)));
+    const meanP = idx.reduce((t, i) => t + pEff[1][i], 0) / idx.length;
     const useDev = win.dev !== 'custom' && hasDevices && DATA.devices[win.dev];
     let elec = 0, p10 = 0, p90 = 0, meanKw = 0, cfPct = null;
     if (useDev) {
       const dev = DATA.devices[win.dev];
-      const e0 = idx.reduce((t, i) => t + interpPower(dev, s.hs[0][i], s.te[i]), 0) / 1000;
-      const e1 = idx.reduce((t, i) => t + interpPower(dev, s.hs[1][i], s.te[i]), 0) / 1000;
-      const e2 = idx.reduce((t, i) => t + interpPower(dev, s.hs[2][i], s.te[i]), 0) / 1000;
+      const e0 = idx.reduce((t, i) => t + interpPower(dev, hsEff[0][i], s.te[i]), 0) / 1000;
+      const e1 = idx.reduce((t, i) => t + interpPower(dev, hsEff[1][i], s.te[i]), 0) / 1000;
+      const e2 = idx.reduce((t, i) => t + interpPower(dev, hsEff[2][i], s.te[i]), 0) / 1000;
       elec = e1; p10 = Math.min(e0, e1, e2); p90 = Math.max(e0, e1, e2);
       meanKw = (e1 * 1000) / idx.length;
       cfPct = (meanKw / dev.rated) * 100;
     } else {
-      const eMWh = idx.reduce((t, i) => t + s.P[1][i], 0) / 1000;
+      const eMWh = idx.reduce((t, i) => t + pEff[1][i], 0) / 1000;
       elec = eMWh * win.cw * win.eff;
-      p10 = idx.reduce((t, i) => t + s.P[0][i], 0) / 1000 * win.cw * win.eff;
-      p90 = idx.reduce((t, i) => t + s.P[2][i], 0) / 1000 * win.cw * win.eff;
+      p10 = idx.reduce((t, i) => t + pEff[0][i], 0) / 1000 * win.cw * win.eff;
+      p90 = idx.reduce((t, i) => t + pEff[2][i], 0) / 1000 * win.cw * win.eff;
     }
     const maxHs = Math.max(...idx.map(i => hsEff[2][i]));
     const safeAt = (i) => hsEff[2][i] <= win.hsLim && (!win.teLim || s.te[i] <= win.teLim) && (!win.wspdLim || !s.wspd || s.wspd[i] == null || s.wspd[i] <= win.wspdLim);
