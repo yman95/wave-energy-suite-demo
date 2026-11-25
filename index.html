@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wave Prediction &amp; Offshore Energy Suite — North America</title>
+  <style>
+    :root {
+      --bg: #070d16;
+      --surface: #0f1726;
+      --surface-2: #142033;
+      --border: rgba(148, 163, 184, 0.2);
+      --ink: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --teal: #2dd4bf;
+      --good: #34d399;
+      --amber: #facc15;
+      --card-bg: linear-gradient(180deg, rgba(20, 32, 51, 0.92), rgba(15, 23, 38, 0.96));
+      --card-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
+      --panel-bg: rgba(15, 23, 38, 0.92);
+      --list-ink: #cbd5e1;
+      --pri-ink: #06131f;
+      --teal-ink: #061b18;
+    }
+    :root[data-theme="light"] {
+      --bg: #f4f7fa;
+      --surface: #ffffff;
+      --surface-2: #edf2f7;
+      --border: rgba(15, 23, 42, 0.14);
+      --ink: #0f172a;
+      --muted: #475569;
+      --accent: #0284c7;
+      --teal: #0d9488;
+      --good: #059669;
+      --card-bg: linear-gradient(180deg, #ffffff, #f8fafc);
+      --card-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+      --panel-bg: #ffffff;
+      --list-ink: #334155;
+      --pri-ink: #ffffff;
+      --teal-ink: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    html { font-size: 16px; }
+    html[data-font="sm"] { font-size: 14px; }
+    html[data-font="lg"] { font-size: 18px; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background:
+        radial-gradient(1100px 520px at 15% -10%, rgba(56, 189, 248, 0.14), transparent 60%),
+        radial-gradient(900px 480px at 90% 0%, rgba(45, 212, 191, 0.10), transparent 55%),
+        var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+      padding: 36px 20px 56px;
+    }
+    .wrap { max-width: 1080px; margin: 0 auto; }
+    .hero { margin-bottom: 28px; }
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .pref-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 8px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: var(--card-shadow);
+    }
+    .font-grp {
+      display: inline-flex;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2px;
+      gap: 2px;
+    }
+    .fbtn {
+      border: 0;
+      background: none;
+      color: var(--muted);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font: inherit;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .fbtn:hover { color: var(--ink); }
+    .fbtn.active { background: var(--accent); color: var(--pri-ink); }
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 999px;
+      padding: 4px 12px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.7rem, 3.2vw, 2.45rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .lead {
+      margin: 0;
+      max-width: 780px;
+      color: var(--muted);
+      font-size: 1.02rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin: 26px 0 28px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--card-shadow);
+    }
+    .card-kicker {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--teal);
+      margin-bottom: 6px;
+    }
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.32rem;
+    }
+    .card p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .card ul {
+      margin: 0 0 18px;
+      padding-left: 18px;
+      color: var(--list-ink);
+      font-size: 0.92rem;
+    }
+    .card li + li { margin-top: 6px; }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 9px 14px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      color: var(--ink);
+      background: var(--surface-2);
+      transition: border-color 0.15s ease, transform 0.15s ease;
+    }
+    .btn:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .btn.primary {
+      background: var(--accent);
+      color: var(--pri-ink);
+      border-color: var(--accent);
+    }
+    .btn.teal {
+      background: var(--teal);
+      color: var(--teal-ink);
+      border-color: var(--teal);
+    }
+    button.btn { cursor: pointer; font-family: inherit; }
+    .panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 22px;
+    }
+    .panel h3 {
+      margin: 0 0 6px;
+      font-size: 1.08rem;
+    }
+    .panel .sub {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    th {
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    tr:last-child td { border-bottom: none; }
+    .mono {
+      font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+      color: var(--ink);
+    }
+    .ok { color: var(--good); font-weight: 600; }
+    footer {
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="hero">
+      <div class="hero-top">
+        <div class="badge">North America Coastal Demo Suite · Forecast v2 &amp; Site Selection v2</div>
+        <div class="pref-bar" id="prefBar" aria-label="Display preferences">
+          <div class="font-grp" role="group" aria-label="Font size">
+            <button class="fbtn" type="button" data-font="sm" title="Compact text">A−</button>
+            <button class="fbtn active" type="button" data-font="md" title="Default text">A</button>
+            <button class="fbtn" type="button" data-font="lg" title="Large text">A+</button>
+          </div>
+          <button class="btn" id="themeBtn" type="button" style="padding:5px 10px;font-size:0.84rem" title="Toggle light / dark mode">☀ Light</button>
+        </div>
+      </div>
+      <h1>Wave Prediction &amp; Offshore Energy Suite</h1>
+      <p class="lead">
+        Interactive client-side demonstrations combining calibrated 72-hour wave and storm-surge forecasting
+        with US &amp; Canada multi-device offshore wave energy site screening. Runs directly in any modern browser.
+      </p>
+    </header>
+
+    <section class="grid">
+      <article class="card">
+        <div>
+          <div class="card-kicker">Product 1 · Real-Time &amp; Replay Operations</div>
+          <h2>72-Hour Wave &amp; Storm-Surge Forecast</h2>
+          <p>
+            Probabilistic P10 / P50 / P90 wave heights, spectral energy period (Te), coastal total water level
+            (tide + atmospheric storm surge), and operational planning tools across North America.
+          </p>
+          <ul>
+            <li><strong>43 buoys &amp; 26 tide gauges</strong> with <strong>NOAA GFS-Wave</strong>, <strong>NWS &amp; ECCC Hazard Alerts</strong> &amp; <strong>STOFS-2D</strong></li>
+            <li><strong>Observation-free Virtual Buoys:</strong> toggle <em>Virtual Buoy</em> to click offshore (blocks inland clicks)</li>
+            <li><strong>Joint Wind + Wave + Te O&amp;M scheduler:</strong> RM3/RM5/RM6/PB10 + GO/NO-GO + <em>Calibrate Buoy CSV</em></li>
+            <li><strong>EOC &amp; research workflows:</strong> CSV/GeoJSON export, Print EOC Brief &amp; <em>Skill</em> live scorecard modal</li>
+          </ul>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="ocean-wave-demo/index.html">Launch Forecast Map</a>
+          <a class="btn" href="ocean-wave-demo/index.html#40.84,-124.27">Humboldt CA Virtual Buoy</a>
+          <a class="btn" href="ocean-wave-demo/index.html#48.80,-125.60">Ucluelet BC Virtual Buoy</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div>
+          <div class="card-kicker">Product 2 · Resource &amp; Techno-Economics</div>
+          <h2>North America WEC Site Selection Atlas</h2>
+          <p>
+            Spatial screening across US and Canadian coastal waters using bias-corrected US 200 m hindcasts
+            and sheltered-strait Downscaling v2 calibration.
+          </p>
+          <ul>
+            <li><strong>15,206 mapped coastal sites</strong> with depth, shore distance, <strong>NOAA Submarine Cables</strong> &amp; <strong>AIS 2025</strong> overlays</li>
+            <li><strong>4 Sandia WEC architectures + CSV upload:</strong> RM3, RM5, RM6 &amp; PB10 with IEC TS 62600-101 metrics</li>
+            <li><strong>Project finance &amp; exports:</strong> Federal ITC (%) &amp; tariff ($/kWh) parity + CSV / GeoJSON export</li>
+            <li><strong>Cross-product deep-links:</strong> jump straight into 72h Forecast &amp; Esri Ocean/Satellite views</li>
+          </ul>
+        </div>
+        <div class="actions">
+          <a class="btn teal" href="site-selection/site_atlas.html">Launch Site Selection Atlas</a>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h3>Held-Out Verification Summary (2024–2025 Non-Overlapping Evaluation)</h3>
+      <p class="sub">Models trained on 2018–2022, conformally calibrated on 2023, and evaluated strictly out-of-sample on 2024–2025.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Component</th>
+              <th>Metric</th>
+              <th>Verified Result</th>
+              <th>Calibration / Benchmark</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Wave Forecast (<span class="mono">v2_buoy</span>)</td>
+              <td>Significant Wave Height RMSE</td>
+              <td class="mono"><span class="ok">0.149 m</span> (+1h) · <span class="ok">0.238 m</span> (+24h) · <span class="ok">0.244 m</span> (+72h)</td>
+              <td>Beats raw forecast, bias-corrected baseline &amp; persistence at all leads; P10–P90 coverage <span class="mono">77.4%–81.0%</span></td>
+            </tr>
+            <tr>
+              <td>Wave Uncertainty &amp; Spectral Te</td>
+              <td>Mean CRPS &amp; Spectral Te MAE</td>
+              <td class="mono">CRPS <span class="ok">0.0972</span> · Te MAE <span class="ok">0.4326 s</span></td>
+              <td>Trained &amp; evaluated against 2.89M spectral Te buoy rows across 37 buoys (raw forecast Te MAE: <span class="mono">0.6103 s</span>)</td>
+            </tr>
+            <tr>
+              <td>Virtual Buoy (<span class="mono">v2_virtual</span> Spatial CV)</td>
+              <td>Coordinate-Free 9-Group LOO CV</td>
+              <td class="mono">Hs RMSE <span class="ok">0.254 m</span> · CRPS <span class="ok">0.1150</span> · Cov80 <span class="ok">81.1%</span></td>
+              <td>Residual Hs formulation cuts Gulf of Alaska <span class="mono">46001</span> RMSE from <span class="mono">0.384</span> to <span class="mono">0.245 m</span> &amp; Hawaii <span class="mono">51201</span> to <span class="mono">0.272 m</span></td>
+            </tr>
+            <tr>
+              <td>Atmospheric Storm Surge v2</td>
+              <td>26-Gauge Water Level Residual RMSE</td>
+              <td class="mono"><span class="ok">0.040–0.090 m</span> (+1h to +72h)</td>
+              <td>P10–P90 coverage <span class="mono">80.0%–81.1%</span>; Persistence RMSE <span class="mono">0.037–0.153 m</span></td>
+            </tr>
+            <tr>
+              <td>Downscaling v2 (US &amp; Canada)</td>
+              <td>AEP Error vs. High-Res &amp; DFO Buoys</td>
+              <td class="mono">US Spatial CV MAPE <span class="ok">0.0597</span> · DFO Median Error <span class="ok">0.165</span></td>
+              <td>Reduced from ERA5 baseline (<span class="mono">0.1119</span> US MAPE / <span class="mono">0.233</span> DFO error) with 2-regime BC scaling</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer>
+      <span>Offline-ready static bundle · Open <span class="mono">index.html</span> in any modern browser.</span>
+      <span><a href="README.md">Project README</a> · <a href="ocean-wave-demo/index.html">Wave Forecast</a> · <a href="site-selection/site_atlas.html">Site Atlas</a></span>
+    </footer>
+  </main>
+  <script>
+    (function () {
+      const btn = document.getElementById('themeBtn');
+      function apply(t) {
+        document.documentElement.dataset.theme = t;
+        try { localStorage.setItem('wave_theme', t); } catch (_) {}
+        if (btn) btn.textContent = t === 'light' ? '☾ Dark' : '☀ Light';
+      }
+      function applyFont(sz) {
+        const v = (sz === 'sm' || sz === 'lg') ? sz : 'md';
+        document.documentElement.dataset.font = v;
+        try { localStorage.setItem('wave_font', v); } catch (_) {}
+        document.querySelectorAll('.fbtn[data-font]').forEach(b => b.classList.toggle('active', b.dataset.font === v));
+      }
+      let saved = 'dark', savedFont = 'md';
+      try {
+        if (localStorage.getItem('wave_theme') === 'light') saved = 'light';
+        savedFont = localStorage.getItem('wave_font') || 'md';
+      } catch (_) {}
+      apply(saved);
+      applyFont(savedFont);
+      if (btn) btn.onclick = () => apply(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light');
+      document.querySelectorAll('.fbtn[data-font]').forEach(b => { b.onclick = () => applyFont(b.dataset.font); });
+    })();
+  </script>
+</body>
+</html>

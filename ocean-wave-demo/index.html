@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave Forecast North America</title>
+<link rel="stylesheet" href="lib/leaflet.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="map"></div>
+
+<header class="panel top-panel">
+  <div class="brand">
+    <div class="title">Wave Forecast · North America</div>
+    <div class="subtitle" id="issued">Loading forecast…</div>
+  </div>
+  <nav class="modes" role="tablist">
+    <button class="mode active" data-mode="sea">Sea state</button>
+    <button class="mode" data-mode="energy">Wave energy</button>
+    <button class="mode" data-mode="warn">Coastal warning</button>
+  </nav>
+  <div class="top-actions">
+    <button class="vbtn alert-pill" id="alertBadge" hidden title="Show active NWS &amp; ECCC coastal hazard alerts"></button>
+    <button class="vbtn" id="virtualBtn" title="Click anywhere on the ocean for a Virtual Buoy 72h forecast">Virtual Buoy</button>
+    <button class="vbtn" id="skillBtn" title="Model verification &amp; benchmark skill scores">Skill</button>
+    <a class="nav-link" href="../site-selection/site_atlas.html">Site Atlas ↗</a>
+  </div>
+</header>
+
+<div class="panel pref-bar" id="prefBar" aria-label="Display preferences">
+  <div class="font-grp" role="group" aria-label="Font size">
+    <button class="fbtn" data-font="sm" title="Compact text">A−</button>
+    <button class="fbtn active" data-font="md" title="Default text">A</button>
+    <button class="fbtn" data-font="lg" title="Large text">A+</button>
+  </div>
+  <button class="vbtn" id="themeBtn" title="Toggle light / dark mode">☀ Light</button>
+  <button class="vbtn" id="legalBtn" title="Decision-support notice &amp; mute settings">Notice</button>
+</div>
+
+<section class="panel time-panel">
+  <div class="time-row">
+    <button id="play" class="icon-btn" aria-label="Play">▶</button>
+    <input type="range" id="hour" min="1" max="72" value="1" step="1">
+    <div class="time-label"><span id="lead">T+1 h</span><span id="valid"></span></div>
+  </div>
+  <div class="legend"><span id="legend-title"></span><div id="legend-bar"></div><div id="legend-ticks"></div></div>
+</section>
+
+<aside class="panel drawer" id="drawer" hidden>
+  <button class="close" id="close" aria-label="Close">×</button>
+  <div id="detail"></div>
+</aside>
+
+<div class="modal-ovl" id="skillModal" hidden role="dialog" aria-modal="true" aria-labelledby="skillTitle">
+  <div class="modal-card">
+    <button class="close" id="skillClose" aria-label="Close">×</button>
+    <h2 id="skillTitle">Forecast v2 &amp; Storm Surge Verification</h2>
+    <p class="note">Held-out 2024–2025 benchmark (trained 2018–2022, conformally calibrated 2023) plus live operational scorecard. Decision-support intelligence only; always verify life-safety actions against official NWS/NTWC/ECCC warnings.</p>
+    <div id="skillBody"></div>
+    <div class="exp-row" style="margin-top:14px">
+      <button class="exp-btn" id="skillDlJson" type="button">Download Benchmark JSON</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-ovl" id="legalModal" hidden role="dialog" aria-modal="true" aria-labelledby="legalTitle">
+  <div class="modal-card">
+    <h2 id="legalTitle">Marine &amp; Coastal Decision-Support Notice</h2>
+    <div class="legal-box">
+      <p><strong>Important Safety &amp; Liability Disclaimer (Notice v2026-11-v2):</strong></p>
+      <ul>
+        <li><strong>Decision-Support Only:</strong> This platform provides statistical post-processing and site-screening analytics. It is <strong>not</strong> an official aid to navigation, maritime distress system, or primary life-safety warning service.</li>
+        <li><strong>Authoritative Official Forecasts:</strong> Always consult and obey official marine, surf, storm-surge, and tsunami warnings issued by <strong>NOAA / NWS / NTWC / PTWC</strong> (United States) and <strong>Environment &amp; Climate Change Canada (ECCC) / DFO</strong> (Canada).</li>
+        <li><strong>Latency &amp; User Responsibility:</strong> Telemetry, coastal observations, or upstream feeds may lag or drop out during severe weather. Operators and municipalities assume full responsibility for navigation, O&amp;M dispatch, and emergency decisions.</li>
+      </ul>
+    </div>
+    <label class="legal-ack"><input type="checkbox" id="legalChk"> I understand and accept that this tool is for decision support only.</label>
+    <div class="legal-row">
+      <label class="note" style="margin:0">Reminder frequency:
+        <select id="legalMute">
+          <option value="0">Remind on next visit (this session only)</option>
+          <option value="6">Mute for 6 hours</option>
+          <option value="24" selected>Mute for 24 hours (1 day)</option>
+          <option value="168">Mute for 7 days (maximum)</option>
+        </select>
+      </label>
+      <button class="legal-accept" id="legalAccept" type="button" disabled>I Understand &amp; Continue</button>
+    </div>
+  </div>
+</div>
+
+<script src="lib/leaflet.js"></script>
+<script src="basemap_data.js"></script>
+<script src="replay_data.js"></script>
+<script src="forecast_data.js" onerror="void 0"></script>
+<script src="app.js"></script>
+</body>
+</html>
