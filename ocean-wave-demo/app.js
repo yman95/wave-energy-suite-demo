@@ -273,7 +273,7 @@
       const ivRows = (iv && iv.regions || []).map(r => `<tr><td>${r.region}<br><small style="opacity:.7">${r.source}${r.te_obs_source ? ' · ' + r.te_obs_source : ''}</small></td><td>${r.n_buoys} (${(r.n_pairs / 1000).toFixed(0)}k pairs)</td><td>${r.raw_hs_rmse.toFixed(3)} m</td><td>${r.na_zeroshot_rmse != null ? r.na_zeroshot_rmse.toFixed(3) + ' m' : '–'}</td><td><b>${(r.local_virtual_rmse ?? r.ai_hs_rmse).toFixed(3)} m</b></td><td>${r.loso_virtual_rmse != null ? r.loso_virtual_rmse.toFixed(3) + ' m' : '–'}</td><td><b>${r.local_buoy_rmse != null ? r.local_buoy_rmse.toFixed(3) + ' m' : '–'}</b></td><td>${r.te_mae_obs != null ? r.te_mae_obs.toFixed(3) + ' s' : '–'}</td><td>${r.cov80_pct.toFixed(1)}%${r.buoy_cov80_pct != null ? ' / ' + r.buoy_cov80_pct.toFixed(1) + '%' : ''}</td></tr>`).join('');
       const ivHtml = ivRows ? `<div class="section"><h3>Regional Models — Held-Out 2025–2026 &amp; Spatial LOSO Validation (Real Buoys)</h3>
         <table class="modal-tbl"><thead><tr><th>Region &amp; Real Feed</th><th>Buoys (Pairs)</th><th>Raw Hs</th><th>NA Zero-Shot</th><th>Local Virtual</th><th>Spatial LOSO</th><th>Local Buoy</th><th>Obs Te MAE</th><th>Cov80 (Virt / Buoy)</th></tr></thead><tbody>${ivRows}</tbody></table>
-        <p class="note" style="margin-top:6px">Locally trained on 2022–2024 real Ireland ERDDAP &amp; Australia IMOS archives (spatial LOSO CV + conformal calibration) and evaluated strictly out-of-sample on 2025–2026. New Zealand &amp; Chile remain unvalidated zero-shot preview zones.</p></div>` : '';
+        <p class="note" style="margin-top:6px">Locally trained on 2022–2024 real regional archives (Ireland ERDDAP + Spain EUSKOOS, Australia IMOS/BOM/WA/NSW/QLD, and CDIP Pacific Islands) with spatial LOSO CV + conformal calibration and evaluated strictly out-of-sample on 2025–2026. New Zealand, Chile &amp; South Africa remain unvalidated zero-shot preview zones.</p></div>` : '';
       $('skillBody').innerHTML = scHtml + `
         <div class="section"><h3>North America Held-Out Mean (2024–2025)</h3>
           <table class="modal-tbl"><thead><tr><th>Model</th><th>Hs RMSE</th><th>Power MAE</th><th>Spectral Te MAE</th><th>CRPS</th><th>Cov80</th></tr></thead><tbody>${wRows}</tbody></table></div>` + ivHtml + `
@@ -332,8 +332,10 @@
   const REGION_VIEWS = {
     global: [[22, -25], 2],
     na: [[44, -105], 3],
-    eu: [[51, -6], 5],
+    eu: [[51, -10], 4],
     au: [[-34, 147], 4],
+    pac: [[22, 160], 3],
+    za: [[-34, 21], 5],
     cl: [[-38, -74], 5],
   };
   document.querySelectorAll('#regionBar .rbtn[data-region]').forEach(b => {
@@ -569,8 +571,14 @@
     const AGENCY_LABELS = {
       IE_MI: 'Ireland Marine Institute',
       IE_WB: 'Ireland Wave Buoy Network',
+      EU_ES: 'Basque EUSKOOS (Spain)',
       AU_QLD: 'Queensland Gov / AusWaves',
+      AU_QLD_S3: 'QLD DES / AODN S3',
       AU_IMOS: 'Australia IMOS / AODN',
+      AU_BOM: 'Australia BOM / AODN',
+      AU_WA: 'WA Dept. of Transport / AODN',
+      AU_NSW: 'NSW DPE / Manly Hydraulics',
+      CDIP_PAC: 'CDIP Pacific Islands (SIO)',
       UKMO_GFS: 'UK/EU WMO · NOAA GFS-Wave',
       UKMO_NDBC: 'UK Met Office / WMO',
       MF_GFS: 'Météo-France · NOAA GFS-Wave',
@@ -583,9 +591,10 @@
     const titleMeta = s.isVirtual
       ? `Virtual Buoy · ${s.lat.toFixed(2)}°, ${s.lon.toFixed(2)}°${s.depth != null ? ` · ${s.depth} m depth · ${s.dist_shore_km} km offshore` : ''} · from ${fmtT(new Date(s.t0))}`
       : `${agencyLabel} · ${s.region} · ${s.lat.toFixed(2)}°, ${s.lon.toFixed(2)}° · forecast from ${fmtT(new Date(s.t0))}`;
-    const valTier = s.validation_tier || ((s.lat >= 35 && s.lat <= 65 && s.lon >= -20 && s.lon <= 15) ? 'eu_local_validated'
+    const valTier = s.validation_tier || ((s.lat >= 27 && s.lat <= 68 && s.lon >= -32 && s.lon <= 16) ? 'eu_local_validated'
       : (s.lat >= -48 && s.lat <= -10 && s.lon >= 110 && s.lon <= 160) ? 'au_local_validated'
-      : (s.lon >= -175 && s.lon <= -45 && s.lat >= 14 && s.region !== 'New Zealand' && s.region !== 'Chile') ? 'na_local_validated'
+      : (s.lat >= -25 && s.lat <= 46 && (s.lon >= 125 || s.lon <= -145)) ? 'pac_local_validated'
+      : (s.lon >= -175 && s.lon <= -45 && s.lat >= 14 && !['New Zealand', 'Chile', 'South Africa'].includes(s.region)) ? 'na_local_validated'
       : 'zero_shot_preview');
     const isZeroShot = valTier.startsWith('zero_shot');
     const tierChip = isZeroShot
