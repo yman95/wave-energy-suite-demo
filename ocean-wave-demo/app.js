@@ -266,10 +266,15 @@
         <tbody><tr><td>${sc.mode}</td><td>${sc.archived_snapshots ?? 0}</td><td>${sc.n_wave_pairs ?? 0}</td><td>${sc.ai_hs_rmse_m != null ? sc.ai_hs_rmse_m.toFixed(3) + ' m' : '–'}</td><td>${sc.raw_hs_rmse_m != null ? sc.raw_hs_rmse_m.toFixed(3) + ' m' : '–'}</td><td>${sc.cov80_pct != null ? sc.cov80_pct.toFixed(1) + '%' : '–'}</td><td>${sc.surge_rmse_m != null ? sc.surge_rmse_m.toFixed(3) + ' m' : '–'}</td></tr></tbody></table></div>` : '';
       const wRows = (bm.wave_overall || []).map(r => `<tr><td>${r.model}</td><td>${r.hs_rmse.toFixed(3)} m</td><td>${r.p_mae.toFixed(2)} kW/m</td><td>${r.te_mae != null ? r.te_mae.toFixed(3) + ' s' : '–'}</td><td>${r.crps.toFixed(3)}</td><td>${r.cov80.toFixed(1)}%</td></tr>`).join('');
       const sRows = (bm.surge_by_lead || []).filter(r => [1, 6, 12, 24, 48, 72].includes(r.h)).map(r => `<tr><td>+${r.h} h</td><td>${r.persist.toFixed(3)} m</td><td>${r.ai.toFixed(3)} m</td><td>${r.cov80.toFixed(1)}%</td><td>${r.hit.toFixed(1)}%</td></tr>`).join('');
+      const iv = bm.intl_validation;
+      const ivRows = (iv && iv.regions || []).map(r => `<tr><td>${r.region}<br><small style="opacity:.7">${r.source}</small></td><td>${r.n_buoys} (${(r.n_pairs / 1000).toFixed(0)}k hrs)</td><td>${r.raw_hs_rmse.toFixed(3)} m</td><td>${r.ai_hs_rmse.toFixed(3)} m</td><td>${r.te_mae_obs != null ? r.te_mae_obs.toFixed(3) + ' s' : '–'}</td><td>${r.crps.toFixed(3)}</td><td>${r.cov80_pct.toFixed(1)}%</td></tr>`).join('');
+      const ivHtml = ivRows ? `<div class="section"><h3>International Out-of-Sample Validation (Zero-Shot Transfer, 2023–2026 Real Buoys)</h3>
+        <table class="modal-tbl"><thead><tr><th>Region &amp; Real Feed</th><th>Buoys (Pairs)</th><th>Raw Hs RMSE</th><th>AI Hs RMSE</th><th>Obs Te MAE</th><th>CRPS</th><th>Cov80</th></tr></thead><tbody>${ivRows}</tbody></table>
+        <p class="note" style="margin-top:6px">Evaluated strictly out-of-sample against real Ireland ERDDAP &amp; Australia IMOS archives (no regional retraining). New Zealand &amp; Chile virtual buoys currently run unvalidated zero-shot transfer.</p></div>` : '';
       $('skillBody').innerHTML = scHtml + `
-        <div class="section"><h3>Wave Forecast Overall Mean (Held-Out 2024–2025)</h3>
-          <table class="modal-tbl"><thead><tr><th>Model</th><th>Hs RMSE</th><th>Power MAE</th><th>Spectral Te MAE</th><th>CRPS</th><th>Cov80</th></tr></thead><tbody>${wRows}</tbody></table></div>
-        <div class="section"><h3>Atmospheric-Forced Storm Surge by Lead (26 Gauges)</h3>
+        <div class="section"><h3>North America Held-Out Mean (2024–2025)</h3>
+          <table class="modal-tbl"><thead><tr><th>Model</th><th>Hs RMSE</th><th>Power MAE</th><th>Spectral Te MAE</th><th>CRPS</th><th>Cov80</th></tr></thead><tbody>${wRows}</tbody></table></div>` + ivHtml + `
+        <div class="section"><h3>Atmospheric-Forced Storm Surge by Lead (26 NA Gauges)</h3>
           <table class="modal-tbl"><thead><tr><th>Lead</th><th>Persistence RMSE</th><th>Surge AI RMSE</th><th>Cov80</th><th>Flood Hit Rate</th></tr></thead><tbody>${sRows}</tbody></table></div>`;
     }
     $('skillModal').hidden = false;
@@ -559,8 +564,12 @@
     const w = warnAt(sid, hi);
     const AGENCY_LABELS = {
       IE_MI: 'Ireland Marine Institute',
+      IE_WB: 'Ireland Wave Buoy Network',
       AU_QLD: 'Queensland Gov / AusWaves',
+      AU_IMOS: 'Australia IMOS / AODN',
+      UKMO_GFS: 'UK/EU WMO · NOAA GFS-Wave',
       UKMO_NDBC: 'UK Met Office / WMO',
+      MF_GFS: 'Météo-France · NOAA GFS-Wave',
       MF_NDBC: 'Météo-France / WMO',
       BOM_NOAA: 'Australia WMO / NOAA',
       DFO: 'DFO/ECCC buoy ' + sid.slice(1),

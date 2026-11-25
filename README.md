@@ -9,7 +9,7 @@ Interactive global coastal wave forecasting, storm-surge monitoring, and wave en
 ## Included Applications
 
 ### 1. 72-Hour Wave & Storm-Surge Forecast (`ocean-wave-demo/`)
-* **Global Coastal Coverage:** Probabilistic 1–72 hour forecasts (`P10 / P50 / P90`) for significant wave height (`Hs`), wave power (`kW/m`), spectral energy period (`Te`), and total water level (`tide + surge`) across **66 buoys** (US, Canada, UK/Ireland/France, Australia) and **25 tide gauges**, plus **18 precomputed global Virtual Buoy hotspots** and on-demand offshore clicking anywhere worldwide (with inland land masking).
+* **Global Coastal Coverage:** Probabilistic 1–72 hour forecasts (`P10 / P50 / P90`) for significant wave height (`Hs`), wave power (`kW/m`), spectral energy period (`Te`), and total water level (`tide + surge`) across **70 buoys** (US, Canada, UK/Ireland/France, Australia) and **25 tide gauges**, plus **18 precomputed global Virtual Buoy hotspots** and on-demand offshore clicking anywhere worldwide (with inland land masking).
 * **Marine Operations & Decision Support:** Joint wind/wave/period O&M `GO / NO-GO` window planner, device power output estimation (**RM3**, **RM5**, **RM6**, **PB10**), official government hazard alerts, bring-your-own-buoy CSV calibration, and CSV / GeoJSON / printable EOC brief exports.
 
 ### 2. Global WEC Site Selection Atlas (`site-selection/site_atlas.html`)
