@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wave Forecast North America</title>
+<title>Wave Forecast · Global</title>
 <link rel="stylesheet" href="lib/leaflet.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
@@ -13,8 +13,15 @@
 
 <header class="panel top-panel">
   <div class="brand">
-    <div class="title">Wave Forecast · North America</div>
+    <div class="title">Wave Forecast · Global</div>
     <div class="subtitle" id="issued">Loading forecast…</div>
+  </div>
+  <div class="rbar" id="regionBar" role="group" aria-label="Jump to region">
+    <button class="rbtn active" data-region="global">Global</button>
+    <button class="rbtn" data-region="na">N. America</button>
+    <button class="rbtn" data-region="eu">Europe</button>
+    <button class="rbtn" data-region="au">Australia &amp; NZ</button>
+    <button class="rbtn" data-region="cl">Chile</button>
   </div>
   <nav class="modes" role="tablist">
     <button class="mode active" data-mode="sea">Sea state</button>
@@ -69,10 +76,10 @@
   <div class="modal-card">
     <h2 id="legalTitle">Marine &amp; Coastal Decision-Support Notice</h2>
     <div class="legal-box">
-      <p><strong>Important Safety &amp; Liability Disclaimer (Notice v2026-11-v2):</strong></p>
+      <p><strong>Important Safety &amp; Liability Disclaimer (Notice v2026-11-v3):</strong></p>
       <ul>
         <li><strong>Decision-Support Only:</strong> This platform provides statistical post-processing and site-screening analytics. It is <strong>not</strong> an official aid to navigation, maritime distress system, or primary life-safety warning service.</li>
-        <li><strong>Authoritative Official Forecasts:</strong> Always consult and obey official marine, surf, storm-surge, and tsunami warnings issued by <strong>NOAA / NWS / NTWC / PTWC</strong> (United States) and <strong>Environment &amp; Climate Change Canada (ECCC) / DFO</strong> (Canada).</li>
+        <li><strong>Authoritative Official Forecasts:</strong> Always consult official marine, surf, storm-surge, and tsunami warnings issued by national authorities including <strong>NOAA / NWS / NTWC / PTWC</strong> (US), <strong>ECCC / DFO</strong> (Canada), <strong>UK Met Office / Met Éireann / Météo-France / AEMET / IPMA</strong> (Europe), <strong>BOM</strong> (Australia), <strong>MetService</strong> (New Zealand), and <strong>SHOA</strong> (Chile).</li>
         <li><strong>Latency &amp; User Responsibility:</strong> Telemetry, coastal observations, or upstream feeds may lag or drop out during severe weather. Operators and municipalities assume full responsibility for navigation, O&amp;M dispatch, and emergency decisions.</li>
       </ul>
     </div>

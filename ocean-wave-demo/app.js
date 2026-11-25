@@ -76,7 +76,7 @@
   }
 
   // ---------- map
-  const map = L.map('map', { zoomControl: false, worldCopyJump: true, minZoom: 2 }).setView([44, -105], 3);
+  const map = L.map('map', { zoomControl: false, worldCopyJump: true, minZoom: 2 }).setView([22, -25], 2);
   L.control.zoom({ position: 'bottomright' }).addTo(map);
   // Basemap: bundled offline coastlines (Natural Earth, public domain) - no API key, works from file://
   const offline = L.layerGroup();
@@ -283,7 +283,7 @@
   });
 
   // First-visit decision-support legal warning & bounded mute (session / 6h / 24h / max 7d)
-  const LEGAL_VER = '2026-11-v2';
+  const LEGAL_VER = '2026-11-v3';
   function legalMuted() {
     try {
       if (sessionStorage.getItem('wave_legal_sess') === LEGAL_VER) return true;
@@ -321,6 +321,21 @@
   }
   if ($('legalBtn')) $('legalBtn').onclick = () => openLegalModal(legalMuted());
   if (!legalMuted()) openLegalModal(false);
+  const REGION_VIEWS = {
+    global: [[22, -25], 2],
+    na: [[44, -105], 3],
+    eu: [[51, -6], 5],
+    au: [[-34, 147], 4],
+    cl: [[-38, -74], 5],
+  };
+  document.querySelectorAll('#regionBar .rbtn[data-region]').forEach(b => {
+    b.onclick = () => {
+      const v = REGION_VIEWS[b.dataset.region];
+      if (!v) return;
+      document.querySelectorAll('#regionBar .rbtn').forEach(x => x.classList.toggle('active', x === b));
+      map.setView(v[0], v[1]);
+    };
+  });
   $('virtualBtn').onclick = () => {
     virtualMode = !virtualMode;
     $('virtualBtn').classList.toggle('active', virtualMode);
@@ -542,9 +557,19 @@
     const s = getStation(sid), gids = gaugeOf[sid] || [];
     if (!s) return;
     const w = warnAt(sid, hi);
+    const AGENCY_LABELS = {
+      IE_MI: 'Ireland Marine Institute',
+      AU_QLD: 'Queensland Gov / AusWaves',
+      UKMO_NDBC: 'UK Met Office / WMO',
+      MF_NDBC: 'Météo-France / WMO',
+      BOM_NOAA: 'Australia WMO / NOAA',
+      DFO: 'DFO/ECCC buoy ' + sid.slice(1),
+      NOAA: 'NOAA NDBC ' + sid,
+    };
+    const agencyLabel = AGENCY_LABELS[s.agency] || (sid.startsWith('C') ? 'DFO/ECCC buoy ' + sid.slice(1) : 'NOAA NDBC ' + sid);
     const titleMeta = s.isVirtual
       ? `Virtual Buoy · ${s.lat.toFixed(2)}°, ${s.lon.toFixed(2)}°${s.depth != null ? ` · ${s.depth} m depth · ${s.dist_shore_km} km offshore` : ''} · from ${fmtT(new Date(s.t0))}`
-      : `${sid.startsWith('C') ? 'DFO/ECCC buoy ' + sid.slice(1) : 'NOAA NDBC ' + sid} · ${s.region} · ${s.lat.toFixed(2)}°, ${s.lon.toFixed(2)}° · forecast from ${fmtT(new Date(s.t0))}`;
+      : `${agencyLabel} · ${s.region} · ${s.lat.toFixed(2)}°, ${s.lon.toFixed(2)}° · forecast from ${fmtT(new Date(s.t0))}`;
     let html = `<div class="d-head"><h2>${s.name}</h2><div class="meta">${titleMeta}</div>
       <div class="chips">${s.isVirtual ? '<span class="chip">Virtual Buoy (obs-free)</span>' : (s.use || '').split('_').filter(Boolean).map(u => `<span class="chip">${{ mre: 'Wave energy site', municipal: 'Municipal', offshore: 'Offshore ref' }[u] || u}</span>`).join('')}${s.fc_model ? `<span class="chip">${s.fc_model}</span>` : ''}${gids.map(x => `<span class="chip">${gauges[x].agency === 'DFO' ? 'DFO' : 'NOAA'} tide gauge ${gauges[x].name}</span>`).join('')}${!s.isVirtual && s.obs_available === false ? '<span class="chip">no live obs</span>' : ''}</div></div>`;
     html += `<div class="status" style="background:${LVL[w.lvl].c}22;border:1px solid ${LVL[w.lvl].c}66"><span class="dot" style="background:${LVL[w.lvl].c}"></span><div>${LVL[w.lvl].t} at T+${H[hi]} h<small>${w.r.join('<br>') || 'Conditions within normal range for this site.'}</small></div></div>`;
