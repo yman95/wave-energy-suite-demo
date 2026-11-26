@@ -572,12 +572,18 @@
       IE_MI: 'Ireland Marine Institute',
       IE_WB: 'Ireland Wave Buoy Network',
       EU_ES: 'Basque EUSKOOS (Spain)',
+      EU_ES_DON: 'Basque EUSKOOS Deepwater (Spain)',
+      SE_SMHI: 'Sweden SMHI Ocean Data',
       AU_QLD: 'Queensland Gov / AusWaves',
       AU_QLD_S3: 'QLD DES / AODN S3',
       AU_IMOS: 'Australia IMOS / AODN',
       AU_BOM: 'Australia BOM / AODN',
       AU_WA: 'WA Dept. of Transport / AODN',
       AU_NSW: 'NSW DPE / Manly Hydraulics',
+      AU_DEAKIN: 'Deakin University VicWaves / AODN',
+      AU_UWA: 'UWA Wave Buoys / AODN',
+      AU_SA_DEW: 'SA Dept. Env & Water / AODN',
+      AU_PPA: 'Pilbara Ports Authority / AODN',
       CDIP_PAC: 'CDIP Pacific Islands (SIO)',
       UKMO_GFS: 'UK/EU WMO · NOAA GFS-Wave',
       UKMO_NDBC: 'UK Met Office / WMO',
@@ -591,7 +597,7 @@
     const titleMeta = s.isVirtual
       ? `Virtual Buoy · ${s.lat.toFixed(2)}°, ${s.lon.toFixed(2)}°${s.depth != null ? ` · ${s.depth} m depth · ${s.dist_shore_km} km offshore` : ''} · from ${fmtT(new Date(s.t0))}`
       : `${agencyLabel} · ${s.region} · ${s.lat.toFixed(2)}°, ${s.lon.toFixed(2)}° · forecast from ${fmtT(new Date(s.t0))}`;
-    const valTier = s.validation_tier || ((s.lat >= 27 && s.lat <= 68 && s.lon >= -32 && s.lon <= 16) ? 'eu_local_validated'
+    const valTier = s.validation_tier || ((s.lat >= 27 && s.lat <= 68 && s.lon >= -32 && s.lon <= 25) ? 'eu_local_validated'
       : (s.lat >= -48 && s.lat <= -10 && s.lon >= 110 && s.lon <= 160) ? 'au_local_validated'
       : (s.lat >= -25 && s.lat <= 46 && (s.lon >= 125 || s.lon <= -145)) ? 'pac_local_validated'
       : (s.lon >= -175 && s.lon <= -45 && s.lat >= 14 && !['New Zealand', 'Chile', 'South Africa'].includes(s.region)) ? 'na_local_validated'
