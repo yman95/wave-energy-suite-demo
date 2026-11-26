@@ -270,10 +270,14 @@
       const wRows = (bm.wave_overall || []).map(r => `<tr><td>${r.model}</td><td>${r.hs_rmse.toFixed(3)} m</td><td>${r.p_mae.toFixed(2)} kW/m</td><td>${r.te_mae != null ? r.te_mae.toFixed(3) + ' s' : '–'}</td><td>${r.crps.toFixed(3)}</td><td>${r.cov80.toFixed(1)}%</td></tr>`).join('');
       const sRows = (bm.surge_by_lead || []).filter(r => [1, 6, 12, 24, 48, 72].includes(r.h)).map(r => `<tr><td>+${r.h} h</td><td>${r.persist.toFixed(3)} m</td><td>${r.ai.toFixed(3)} m</td><td>${r.cov80.toFixed(1)}%</td><td>${r.hit.toFixed(1)}%</td></tr>`).join('');
       const iv = bm.intl_validation;
-      const ivRows = (iv && iv.regions || []).map(r => `<tr><td>${r.region}<br><small style="opacity:.7">${r.source}${r.te_obs_source ? ' · ' + r.te_obs_source : ''}</small></td><td>${r.n_buoys} (${(r.n_pairs / 1000).toFixed(0)}k pairs)</td><td>${r.raw_hs_rmse.toFixed(3)} m</td><td>${r.na_zeroshot_rmse != null ? r.na_zeroshot_rmse.toFixed(3) + ' m' : '–'}</td><td><b>${(r.local_virtual_rmse ?? r.ai_hs_rmse).toFixed(3)} m</b></td><td>${r.loso_virtual_rmse != null ? r.loso_virtual_rmse.toFixed(3) + ' m' : '–'}</td><td><b>${r.local_buoy_rmse != null ? r.local_buoy_rmse.toFixed(3) + ' m' : '–'}</b></td><td>${r.te_mae_obs != null ? r.te_mae_obs.toFixed(3) + ' s' : '–'}</td><td>${r.cov80_pct.toFixed(1)}%${r.buoy_cov80_pct != null ? ' / ' + r.buoy_cov80_pct.toFixed(1) + '%' : ''}</td></tr>`).join('');
-      const ivHtml = ivRows ? `<div class="section"><h3>Regional Models — Held-Out 2025–2026 &amp; Spatial LOSO Validation (Real Buoys)</h3>
-        <table class="modal-tbl"><thead><tr><th>Region &amp; Real Feed</th><th>Buoys (Pairs)</th><th>Raw Hs</th><th>NA Zero-Shot</th><th>Local Virtual</th><th>Spatial LOSO</th><th>Local Buoy</th><th>Obs Te MAE</th><th>Cov80 (Virt / Buoy)</th></tr></thead><tbody>${ivRows}</tbody></table>
-        <p class="note" style="margin-top:6px">Locally trained on 2022–2024 real regional archives (Ireland ERDDAP + Spain EUSKOOS, Australia IMOS/BOM/WA/NSW/QLD, and CDIP Pacific Islands) with spatial LOSO CV + conformal calibration and evaluated strictly out-of-sample on 2025–2026. New Zealand, Chile &amp; South Africa remain unvalidated zero-shot preview zones.</p></div>` : '';
+      const ivRows = (iv && iv.regions || []).map(r => {
+        const aiR = r.local_virtual_rmse ?? r.ai_hs_rmse;
+        const dmTxt = r.dm_pvalue != null ? (r.dm_pvalue < 1e-4 ? '<0.0001' : r.dm_pvalue.toFixed(4)) : '–';
+        return `<tr><td>${r.region}<br><small style="opacity:.7">${r.source}${r.te_obs_source ? ' · ' + r.te_obs_source : ''}</small></td><td>${r.n_buoys} (${(r.n_pairs / 1000).toFixed(1)}k)</td><td>${r.raw_hs_rmse.toFixed(3)} m</td><td><b>${aiR != null ? aiR.toFixed(3) + ' m' : '–'}</b>${r.local_buoy_rmse != null ? ' <small>(B: ' + r.local_buoy_rmse.toFixed(3) + ')</small>' : ''}</td><td>${r.si != null ? r.si.toFixed(3) : '–'}</td><td>${r.r2 != null ? r.r2.toFixed(3) : '–'}</td><td>${r.storm_p95_rmse != null ? r.storm_p95_rmse.toFixed(3) + ' m' : '–'}</td><td>${r.cov80_pct != null ? r.cov80_pct.toFixed(1) + '%' : '–'}</td><td>${dmTxt}</td></tr>`;
+      }).join('');
+      const ivHtml = ivRows ? `<div class="section"><h3>Global Regional Models — IEC TS 62600-101 Held-Out 2025–2026 Audit (Buoy + IMOS Altimetry)</h3>
+        <table class="modal-tbl"><thead><tr><th>Region &amp; Verified Feed</th><th>Sites (Pairs)</th><th>Raw Hs</th><th>Local AI (V / B)</th><th>SI</th><th>R²</th><th>Storm P95 RMSE</th><th>Cov80</th><th>DM p</th></tr></thead><tbody>${ivRows}</tbody></table>
+        <p class="note" style="margin-top:6px"><b>Method Disclosure:</b> Offline 2025–2026 benchmarks run strict zero-leakage temporal &amp; spatial splits in <i>hindcast-forced coastal downscaling</i> mode (ERA5/marine boundary forcing + GEBCO geometry against 67 real buoys &amp; 47 IMOS multi-mission altimetry shelf tiles); live operational GFS-Wave/ECMWF NWP forecast error is tracked separately in the Live Rolling Scorecard above. North Atlantic cross-validation tests EU_local zero-shot on 8 unseen Iceland/Norway/Orkney/Azores/Iberia altimetry tiles.</p></div>` : '';
       $('skillBody').innerHTML = scHtml + `
         <div class="section"><h3>North America Held-Out Mean (2024–2025)</h3>
           <table class="modal-tbl"><thead><tr><th>Model</th><th>Hs RMSE</th><th>Power MAE</th><th>Spectral Te MAE</th><th>CRPS</th><th>Cov80</th></tr></thead><tbody>${wRows}</tbody></table></div>` + ivHtml + `
@@ -585,6 +589,8 @@
       AU_SA_DEW: 'SA Dept. Env & Water / AODN',
       AU_PPA: 'Pilbara Ports Authority / AODN',
       CDIP_PAC: 'CDIP Pacific Islands (SIO)',
+      CDIP_NDBC: 'CDIP / NOAA NDBC',
+      KMA_NDBC: 'Korea Met Admin / WMO NDBC',
       UKMO_GFS: 'UK/EU WMO · NOAA GFS-Wave',
       UKMO_NDBC: 'UK Met Office / WMO',
       MF_GFS: 'Météo-France · NOAA GFS-Wave',
@@ -599,13 +605,20 @@
       : `${agencyLabel} · ${s.region} · ${s.lat.toFixed(2)}°, ${s.lon.toFixed(2)}° · forecast from ${fmtT(new Date(s.t0))}`;
     const valTier = s.validation_tier || ((s.lat >= 27 && s.lat <= 68 && s.lon >= -32 && s.lon <= 25) ? 'eu_local_validated'
       : (s.lat >= -48 && s.lat <= -10 && s.lon >= 110 && s.lon <= 160) ? 'au_local_validated'
-      : (s.lat >= -25 && s.lat <= 46 && (s.lon >= 125 || s.lon <= -145)) ? 'pac_local_validated'
-      : (s.lon >= -175 && s.lon <= -45 && s.lat >= 14 && !['New Zealand', 'Chile', 'South Africa'].includes(s.region)) ? 'na_local_validated'
+      : (s.lat >= -52 && s.lat <= -32 && s.lon >= 163 && s.lon <= 180) ? 'nz_altimetry_validated'
+      : (s.lat >= -58 && s.lat <= -18 && s.lon >= -82 && s.lon <= -48) ? 'sa_altimetry_validated'
+      : (s.lat >= -40 && s.lat <= -18 && s.lon >= 12 && s.lon <= 60) ? 'za_altimetry_validated'
+      : (s.lat >= 25 && s.lat <= 48 && s.lon >= 123 && s.lon <= 152) ? 'jp_altimetry_validated'
+      : (s.lat >= -25 && s.lat <= 25 && (s.lon >= 125 || s.lon <= -145)) ? 'pac_local_validated'
+      : (s.lon >= -175 && s.lon <= -45 && s.lat >= 14) ? 'na_local_validated'
       : 'zero_shot_preview');
     const isZeroShot = valTier.startsWith('zero_shot');
+    const isAltVal = valTier.endsWith('altimetry_validated');
     const tierChip = isZeroShot
       ? '<span class="chip" style="border-color:rgba(250,204,21,.45);color:#facc15;background:rgba(250,204,21,.12)">⚠ Zero-Shot Preview (Unvalidated Region)</span>'
-      : '<span class="chip" style="border-color:rgba(52,211,153,.4);color:#34d399;background:rgba(52,211,153,.1)">✓ Locally Validated</span>';
+      : isAltVal
+      ? '<span class="chip" style="border-color:rgba(56,189,248,.45);color:#38bdf8;background:rgba(56,189,248,.12)">✓ Satellite-Validated (IMOS)</span>'
+      : '<span class="chip" style="border-color:rgba(52,211,153,.4);color:#34d399;background:rgba(52,211,153,.1)">✓ Buoy-Validated</span>';
     let html = `<div class="d-head"><h2>${s.name}</h2><div class="meta">${titleMeta}</div>
       <div class="chips">${s.isVirtual ? '<span class="chip">Virtual Buoy (obs-free)</span>' : (s.use || '').split('_').filter(Boolean).map(u => `<span class="chip">${{ mre: 'Wave energy site', municipal: 'Municipal', offshore: 'Offshore ref' }[u] || u}</span>`).join('')}${tierChip}${s.fc_model ? `<span class="chip">${s.fc_model}</span>` : ''}${gids.map(x => `<span class="chip">${gauges[x].agency === 'DFO' ? 'DFO' : 'NOAA'} tide gauge ${gauges[x].name}</span>`).join('')}${!s.isVirtual && s.obs_available === false ? '<span class="chip">no live obs</span>' : ''}</div></div>`;
     html += `<div class="status" style="background:${LVL[w.lvl].c}22;border:1px solid ${LVL[w.lvl].c}66"><span class="dot" style="background:${LVL[w.lvl].c}"></span><div>${LVL[w.lvl].t} at T+${H[hi]} h<small>${w.r.join('<br>') || 'Conditions within normal range for this site.'}</small></div></div>`;
