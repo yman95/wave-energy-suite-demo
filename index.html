@@ -262,7 +262,7 @@
       <h1>Wave Prediction &amp; Offshore Energy Suite</h1>
       <p class="lead">
         Interactive client-side demonstrations combining calibrated 72-hour wave and storm-surge forecasting
-        with multi-device offshore wave energy site screening across North America, NW Europe &amp; North Atlantic, Australia, Pacific Islands &amp; Japan, New Zealand, South Africa &amp; Chile.
+        with multi-device offshore wave energy site screening across 9 trained global ocean basins: North America, NW Europe &amp; North Atlantic, Australia, Pacific Islands, New Zealand, Chile &amp; South America, South Africa &amp; Indian Ocean, Japan &amp; NW Pacific, and India &amp; Sri Lanka.
       </p>
     </header>
 
@@ -276,7 +276,7 @@
             (tide + atmospheric storm surge), and operational planning tools worldwide.
           </p>
           <ul>
-            <li><strong>120 buoys, 25 tide gauges &amp; 32 global hotspots</strong> with locally trained <strong>NA, NW Europe, Australia, Pacific Islands (buoy) + New Zealand, Chile/SA, South Africa &amp; Japan (IMOS 8-mission altimetry)</strong> regional models + <strong>ERA5+SST air-sea climate</strong> &amp; <strong>STOFS-2D</strong></li>
+            <li><strong>120 buoys, 25 tide gauges &amp; 40 global hotspots</strong> powered by <strong>9 regional models</strong> (trained on <strong>1974–2026 government buoys</strong> + <strong>18-mission 1985–2026 IMOS satellite altimetry</strong> + <strong>ERA5/SST air-sea climate</strong> &amp; <strong>STOFS-2D</strong>)</li>
             <li><strong>Global observation-free Virtual Buoys:</strong> toggle <em>Virtual Buoy</em> to click any offshore ocean worldwide (blocks inland clicks)</li>
             <li><strong>Joint Wind + Wave + Te O&amp;M scheduler:</strong> RM3/RM5/RM6/PB10 + GO/NO-GO + <em>Calibrate Buoy CSV</em></li>
             <li><strong>EOC &amp; research workflows:</strong> CSV/GeoJSON export, Print EOC Brief &amp; <em>Skill</em> live scorecard modal</li>
@@ -289,6 +289,7 @@
           <a class="btn" href="ocean-wave-demo/index.html#-41.50,144.45">W Tasmania AU</a>
           <a class="btn" href="ocean-wave-demo/index.html#39.25,142.20">Tohoku JP</a>
           <a class="btn" href="ocean-wave-demo/index.html#-34.38,18.25">Cape Town ZA</a>
+          <a class="btn" href="ocean-wave-demo/index.html#7.80,77.45">Kanyakumari IN</a>
         </div>
       </article>
 
@@ -301,7 +302,7 @@
             Downscaling v2 calibration, and GEBCO coastal bathymetry.
           </p>
           <ul>
-            <li><strong>15,600+ mapped coastal sites</strong> with depth, shore distance, <strong>NOAA Submarine Cables</strong> &amp; <strong>AIS 2025</strong> overlays</li>
+            <li><strong>15,653 mapped coastal sites</strong> with depth, shore distance, <strong>NOAA Submarine Cables</strong> &amp; <strong>AIS 2025</strong> overlays</li>
             <li><strong>4 Sandia WEC architectures + CSV upload:</strong> RM3, RM5, RM6 &amp; PB10 with IEC TS 62600-101 metrics</li>
             <li><strong>Project finance &amp; exports:</strong> Federal ITC (%) &amp; tariff ($/kWh) parity + CSV / GeoJSON export</li>
             <li><strong>Cross-product deep-links:</strong> jump straight into 72h Forecast &amp; Esri Ocean/Satellite views</li>
@@ -350,6 +351,18 @@
               <td>26-Gauge Water Level Residual RMSE</td>
               <td class="mono"><span class="ok">0.040–0.090 m</span> (+1h to +72h)</td>
               <td>P10–P90 coverage <span class="mono">80.0%–81.1%</span>; Persistence RMSE <span class="mono">0.037–0.153 m</span></td>
+            </tr>
+            <tr>
+              <td>Global 8 International Basins (<span class="mono">2025–2026</span> IEC Audit)</td>
+              <td>Out-of-Sample Hs RMSE &amp; Cov80</td>
+              <td class="mono"><span class="ok">0.171–0.259 m</span> (buoy) · <span class="ok">0.202–0.454 m</span> (virtual/alt)</td>
+              <td>Beats raw model across all 8 basins (EU, AU, PAC, NZ, SA, ZA, JP, IN; DM <span class="mono">p &lt; 0.05</span>), empirical Cov80 <span class="mono">80.4%–87.4%</span></td>
+            </tr>
+            <tr>
+              <td>Extreme Return <span class="mono">Hs,50</span> (<span class="mono">1978–2026</span> Records)</td>
+              <td>89 Multi-Decade Stations &amp; Tiles</td>
+              <td class="mono">Median 10-Yr Error <span class="ok">7.3%</span> (bias <span class="mono">+4.54%</span>)</td>
+              <td>Validated against 20–42 year government buoy &amp; 18-mission IMOS satellite altimetry annual maxima (<span class="mono">1985–2026</span>)</td>
             </tr>
             <tr>
               <td>Downscaling v2 (US &amp; Canada)</td>

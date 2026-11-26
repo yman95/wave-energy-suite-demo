@@ -1,6 +1,6 @@
 # Wave Prediction & Offshore Energy Suite — Live Demo
 
-Interactive global coastal wave forecasting, storm-surge monitoring, and wave energy converter (WEC) site screening platform covering North America, NW Europe, Australia, New Zealand, and Chile.
+Interactive global coastal wave forecasting, storm-surge monitoring, and wave energy converter (WEC) site screening platform covering 9 global ocean basins (North America, NW Europe, Australia, Pacific Islands, New Zealand, South America, South Africa & Indian Ocean, Japan & NW Pacific, and India/Sri Lanka).
 
 **Live Interactive Demo:** https://yman95.github.io/wave-energy-suite-demo/
 
@@ -9,7 +9,7 @@ Interactive global coastal wave forecasting, storm-surge monitoring, and wave en
 ## Included Applications
 
 ### 1. 72-Hour Wave & Storm-Surge Forecast (`ocean-wave-demo/`)
-* **Global Coastal Coverage:** Probabilistic 1–72 hour forecasts (`P10 / P50 / P90`) using locally trained regional wave models (buoy + multi-mission IMOS satellite altimetry + GEBCO geometry + ERA5/SST air-sea forcing) across **North America**, **NW Europe & North Atlantic**, **Australia**, **Pacific Islands**, **New Zealand**, **Chile & South America**, **South Africa & Indian Ocean**, and **Japan & NW Pacific** (**120 live buoys** and **25 tide gauges** across **NOAA/ECCC, KMA, Ireland Marine Institute, Sweden SMHI, Spain EUSKOOS, Australia IMOS/AODN, and CDIP**), plus **32 precomputed global Virtual Buoy hotspots** and on-demand offshore clicking anywhere worldwide (with inland land masking).
+* **Global Coastal Coverage:** Probabilistic 1–72 hour forecasts (`P10 / P50 / P90`) using locally trained regional wave models (full-history `1974–2026` government buoys + `18-mission 1985–2026` IMOS satellite altimetry + GEBCO geometry + ERA5/SST air-sea climate forcing) across **9 ocean basins**: **North America**, **NW Europe & North Atlantic**, **Australia**, **Pacific Islands**, **New Zealand**, **Chile & South America**, **South Africa & Indian Ocean**, **Japan & NW Pacific**, and **India, Sri Lanka & N. Indian Ocean** (**120 live buoys** and **25 tide gauges** across **NOAA/ECCC, KMA, Ireland Marine Institute, Sweden SMHI, Spain EUSKOOS, Australia IMOS/MHL/AODN, and CDIP**), plus **40 precomputed global Virtual Buoy hotspots** and on-demand offshore clicking anywhere worldwide (with inland land masking).
 * **Marine Operations & Decision Support:** Joint wind/wave/period O&M `GO / NO-GO` window planner, device power output estimation (**RM3**, **RM5**, **RM6**, **PB10**), official government hazard alerts, bring-your-own-buoy CSV calibration, and CSV / GeoJSON / printable EOC brief exports.
 
 ### 2. Global WEC Site Selection Atlas (`site-selection/site_atlas.html`)
@@ -21,4 +21,4 @@ Interactive global coastal wave forecasting, storm-surge monitoring, and wave en
 
 ## Decision-Support Notice
 
-This demo is provided for coastal planning, engineering analysis, and decision-support exploration only. Forecasts, surge estimates, and hazard summaries do **not** replace official marine forecasts, advisories, or warnings issued by national meteorological and hydrographic authorities including **NOAA / NWS / NTWC / PTWC** (United States), **ECCC / DFO** (Canada), **UK Met Office / Met Éireann / Météo-France / AEMET / IPMA** (Europe), **BOM** (Australia), **MetService** (New Zealand), and **SHOA** (Chile). Mariners and coastal operators should always verify official bulletins prior to operational decisions.
+This demo is provided for coastal planning, engineering analysis, and decision-support exploration only. Forecasts, surge estimates, and hazard summaries do **not** replace official marine forecasts, advisories, or warnings issued by national meteorological and hydrographic authorities including **NOAA / NWS / NTWC / PTWC** (United States), **ECCC / DFO** (Canada), **UK Met Office / Met Éireann / Météo-France / AEMET / IPMA** (Europe), **BOM** (Australia), **MetService** (New Zealand), **INCOIS** (India), and **SHOA** (Chile). Mariners and coastal operators should always verify official bulletins prior to operational decisions.

@@ -277,7 +277,7 @@
       }).join('');
       const ivHtml = ivRows ? `<div class="section"><h3>Global Regional Models — IEC TS 62600-101 Held-Out 2025–2026 Audit (Buoy + IMOS Altimetry)</h3>
         <table class="modal-tbl"><thead><tr><th>Region &amp; Verified Feed</th><th>Sites (Pairs)</th><th>Raw Hs</th><th>Local AI (V / B)</th><th>SI</th><th>R²</th><th>Storm P95 RMSE</th><th>Cov80</th><th>DM p</th></tr></thead><tbody>${ivRows}</tbody></table>
-        <p class="note" style="margin-top:6px"><b>Method Disclosure:</b> Offline 2025–2026 benchmarks run strict zero-leakage temporal &amp; spatial splits in <i>hindcast-forced coastal downscaling</i> mode (ERA5/marine boundary forcing + GEBCO geometry against 67 real buoys &amp; 47 IMOS multi-mission altimetry shelf tiles); live operational GFS-Wave/ECMWF NWP forecast error is tracked separately in the Live Rolling Scorecard above. North Atlantic cross-validation tests EU_local zero-shot on 8 unseen Iceland/Norway/Orkney/Azores/Iberia altimetry tiles.</p></div>` : '';
+        <p class="note" style="margin-top:6px"><b>Method Disclosure:</b> Offline 2025–2026 benchmarks run strict zero-leakage temporal &amp; spatial splits in <i>hindcast-forced coastal downscaling</i> mode (ERA5-Ocean/marine + ERA5 SST/atmospheric boundary forcing + GEBCO geometry against global government buoys &amp; 18-mission IMOS satellite altimetry shelf tiles); live operational GFS-Wave/ECMWF NWP forecast error is tracked separately in the Live Rolling Scorecard above. North Atlantic cross-validation tests EU_local zero-shot on unseen Iceland/Norway/Orkney/Faroes/Morocco/Azores/Iberia altimetry tiles &amp; Caribbean buoys.</p></div>` : '';
       $('skillBody').innerHTML = scHtml + `
         <div class="section"><h3>North America Held-Out Mean (2024–2025)</h3>
           <table class="modal-tbl"><thead><tr><th>Model</th><th>Hs RMSE</th><th>Power MAE</th><th>Spectral Te MAE</th><th>CRPS</th><th>Cov80</th></tr></thead><tbody>${wRows}</tbody></table></div>` + ivHtml + `
@@ -606,9 +606,10 @@
     const valTier = s.validation_tier || ((s.lat >= 27 && s.lat <= 68 && s.lon >= -32 && s.lon <= 25) ? 'eu_local_validated'
       : (s.lat >= -48 && s.lat <= -10 && s.lon >= 110 && s.lon <= 160) ? 'au_local_validated'
       : (s.lat >= -52 && s.lat <= -32 && s.lon >= 163 && s.lon <= 180) ? 'nz_altimetry_validated'
-      : (s.lat >= -58 && s.lat <= -18 && s.lon >= -82 && s.lon <= -48) ? 'sa_altimetry_validated'
+      : (s.lat >= -58 && s.lat <= -10 && s.lon >= -86 && s.lon <= -38) ? 'sa_altimetry_validated'
       : (s.lat >= -40 && s.lat <= -18 && s.lon >= 12 && s.lon <= 60) ? 'za_altimetry_validated'
-      : (s.lat >= 25 && s.lat <= 48 && s.lon >= 123 && s.lon <= 152) ? 'jp_altimetry_validated'
+      : (s.lat >= 21.5 && s.lat <= 49 && s.lon >= 120.5 && s.lon <= 155) ? 'jp_altimetry_validated'
+      : (s.lat >= -5 && s.lat <= 26 && s.lon >= 35 && s.lon <= 98) ? 'in_altimetry_validated'
       : (s.lat >= -25 && s.lat <= 25 && (s.lon >= 125 || s.lon <= -145)) ? 'pac_local_validated'
       : (s.lon >= -175 && s.lon <= -45 && s.lat >= 14) ? 'na_local_validated'
       : 'zero_shot_preview');
