@@ -1,6 +1,6 @@
 # Wave Prediction & Offshore Energy Suite — Live Demo
 
-Interactive global coastal wave forecasting, storm-surge monitoring, and wave energy converter (WEC) site screening platform covering 9 global ocean basins (North America, NW Europe, Australia, Pacific Islands, New Zealand, South America, South Africa & Indian Ocean, Japan & NW Pacific, and India/Sri Lanka).
+Interactive global coastal wave forecasting, storm-surge monitoring, and wave energy converter (WEC) site screening platform covering 10 global ocean basins (North America, NW Europe, North Atlantic, Australia, Pacific Islands, New Zealand, South America, South Africa & Indian Ocean, Japan & NW Pacific, and India/Sri Lanka).
 
 **Live Interactive Demo:** https://yman95.github.io/wave-energy-suite-demo/
 
@@ -9,11 +9,11 @@ Interactive global coastal wave forecasting, storm-surge monitoring, and wave en
 ## Included Applications
 
 ### 1. 72-Hour Wave & Storm-Surge Forecast (`ocean-wave-demo/`)
-* **Global Coastal Coverage:** Probabilistic 1–72 hour forecasts (`P10 / P50 / P90`) using locally trained regional wave models (full-history `1974–2026` government buoys + `18-mission 1985–2026` IMOS satellite altimetry + GEBCO geometry + ERA5/SST air-sea climate forcing) across **9 ocean basins**: **North America**, **NW Europe & North Atlantic**, **Australia**, **Pacific Islands**, **New Zealand**, **Chile & South America**, **South Africa & Indian Ocean**, **Japan & NW Pacific**, and **India, Sri Lanka & N. Indian Ocean** (**120 live buoys** and **25 tide gauges** across **NOAA/ECCC, KMA, Ireland Marine Institute, Sweden SMHI, Spain EUSKOOS, Australia IMOS/MHL/AODN, and CDIP**), plus **40 precomputed global Virtual Buoy hotspots** and on-demand offshore clicking anywhere worldwide (with inland land masking).
+* **Global Coastal Coverage:** Probabilistic 1–72 hour forecasts (`P10 / P50 / P90`) using locally trained regional wave models (full-history `1974–2026` government buoys + `18-mission 1985–2026` IMOS satellite altimetry + GEBCO geometry + ERA5/SST air-sea climate forcing) across **10 ocean basins**: **North America**, **NW Europe**, **North Atlantic**, **Australia**, **Pacific Islands**, **New Zealand**, **Chile & South America**, **South Africa & Indian Ocean**, **Japan & NW Pacific**, and **India, Sri Lanka & N. Indian Ocean** (**120 live buoys** and **25 tide gauges** across **NOAA/ECCC, KMA, Ireland Marine Institute, Sweden SMHI, Spain EUSKOOS, Australia IMOS/MHL/AODN, and CDIP**), plus **40 precomputed global Virtual Buoy hotspots** and on-demand offshore clicking anywhere worldwide (with inland land masking).
 * **Marine Operations & Decision Support:** Joint wind/wave/period O&M `GO / NO-GO` window planner, device power output estimation (**RM3**, **RM5**, **RM6**, **PB10**), official government hazard alerts, bring-your-own-buoy CSV calibration, and CSV / GeoJSON / printable EOC brief exports.
 
 ### 2. Global WEC Site Selection Atlas (`site-selection/site_atlas.html`)
-* **Multi-Region Resource Screening:** Interactive atlas spanning **15,653 mapped coastal sites** across North America, NW Europe, North Atlantic (Iceland, Faroes, Western Norway), Australia, New Zealand, Chile, South Africa, Japan & West Pacific, and Macaronesia/Fiji.
+* **Multi-Region Resource Screening:** Interactive atlas spanning **15,742 mapped coastal sites** across **15 regions (North America + 9 global basins)**: North America, NW Europe, North Atlantic (Iceland, Faroes, Western Norway, Lofoten), Australia, New Zealand, Chile & South America (Chile, Peru, Argentina, Brazil), South Africa & Indian Ocean (South Africa, Namibia, Madagascar, Réunion/Mauritius), Japan & West Pacific (Japan, Taiwan, Jeju, Guam), India & Sri Lanka, and Pacific Islands & Macaronesia (Azores, Madeira, Canaries, Morocco, Fiji, Samoa, Palau).
 * **Multi-Device Techno-Economic Comparison:** Side-by-side levelized cost and annual energy yield comparison across **RM3**, **RM5**, **RM6**, and **PB10** architectures, plus client-side custom device CSV upload, Federal ITC & electricity tariff parity sliders, region quick-zoom controls, and one-click deep links into the 72-hour forecast view.
 * **Marine Spatial Planning Overlays:** Esri Ocean and Satellite basemaps alongside submarine cables, marine vessel traffic layers, and CSV / GeoJSON exports.
 

@@ -578,6 +578,7 @@
       EU_ES: 'Basque EUSKOOS (Spain)',
       EU_ES_DON: 'Basque EUSKOOS Deepwater (Spain)',
       SE_SMHI: 'Sweden SMHI Ocean Data',
+      NO_MET: 'MET Norway Coastal Buoys',
       AU_QLD: 'Queensland Gov / AusWaves',
       AU_QLD_S3: 'QLD DES / AODN S3',
       AU_IMOS: 'Australia IMOS / AODN',
@@ -603,15 +604,16 @@
     const titleMeta = s.isVirtual
       ? `Virtual Buoy · ${s.lat.toFixed(2)}°, ${s.lon.toFixed(2)}°${s.depth != null ? ` · ${s.depth} m depth · ${s.dist_shore_km} km offshore` : ''} · from ${fmtT(new Date(s.t0))}`
       : `${agencyLabel} · ${s.region} · ${s.lat.toFixed(2)}°, ${s.lon.toFixed(2)}° · forecast from ${fmtT(new Date(s.t0))}`;
-    const valTier = s.validation_tier || ((s.lat >= 27 && s.lat <= 68 && s.lon >= -32 && s.lon <= 25) ? 'eu_local_validated'
+    const valTier = s.validation_tier || ((s.lat >= 43.2 && s.lat <= 61.2 && s.lon >= -12 && s.lon <= 25) ? 'eu_local_validated'
+      : ((s.lat >= 57 && s.lat <= 71 && s.lon >= -45 && s.lon <= 16) || (s.lat >= 26 && s.lat < 43.2 && s.lon >= -36 && s.lon <= -5.5) || (s.lat >= 11 && s.lat < 24 && s.lon >= -76 && s.lon <= -40) || (s.lat >= 24 && s.lat < 57 && s.lon >= -50 && s.lon <= -12)) ? 'natl_local_validated'
       : (s.lat >= -48 && s.lat <= -10 && s.lon >= 110 && s.lon <= 160) ? 'au_local_validated'
-      : (s.lat >= -52 && s.lat <= -32 && s.lon >= 163 && s.lon <= 180) ? 'nz_altimetry_validated'
-      : (s.lat >= -58 && s.lat <= -10 && s.lon >= -86 && s.lon <= -38) ? 'sa_altimetry_validated'
+      : (s.lat >= -55 && s.lat <= -32 && s.lon >= 163 && s.lon <= 180) ? 'nz_altimetry_validated'
+      : (s.lat >= -58 && s.lat <= 13.5 && s.lon >= -92 && s.lon <= -34) ? 'sa_altimetry_validated'
       : (s.lat >= -40 && s.lat <= -18 && s.lon >= 12 && s.lon <= 60) ? 'za_altimetry_validated'
       : (s.lat >= 21.5 && s.lat <= 49 && s.lon >= 120.5 && s.lon <= 155) ? 'jp_altimetry_validated'
       : (s.lat >= -5 && s.lat <= 26 && s.lon >= 35 && s.lon <= 98) ? 'in_altimetry_validated'
       : (s.lat >= -25 && s.lat <= 25 && (s.lon >= 125 || s.lon <= -145)) ? 'pac_local_validated'
-      : (s.lon >= -175 && s.lon <= -45 && s.lat >= 14) ? 'na_local_validated'
+      : (s.lon >= -175 && s.lon <= -50 && s.lat >= 24) ? 'na_local_validated'
       : 'zero_shot_preview');
     const isZeroShot = valTier.startsWith('zero_shot');
     const isAltVal = valTier.endsWith('altimetry_validated');
