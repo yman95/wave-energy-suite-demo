@@ -93,6 +93,9 @@ input[type=range] { flex: 1; accent-color: var(--accent); }
 }
 .alert-pill { border-color: rgba(251, 146, 60, 0.55); color: #fb923c; background: rgba(251, 146, 60, 0.14); }
 .alert-pill:hover { border-color: #ef4444; color: #ef4444; }
+.live-pill { border-color: rgba(52, 211, 153, 0.48); color: #34d399; background: rgba(52, 211, 153, 0.12); font-size: 0.84rem; font-family: 'JetBrains Mono', monospace; }
+.live-pill:hover { border-color: #38bdf8; color: #38bdf8; }
+:root[data-theme="light"] .live-pill { color: #047857; border-color: rgba(4, 120, 87, 0.42); background: rgba(16, 185, 129, 0.12); }
 .exp-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .exp-btn { border: 1px solid var(--line); background: var(--ctrl-bg); color: var(--text); padding: 5px 10px; border-radius: 7px; font: inherit; font-size: 0.86rem; font-weight: 600; cursor: pointer; }
 .exp-btn:hover { border-color: var(--accent); color: var(--accent); }

@@ -186,9 +186,20 @@
     vm.bindTooltip('', { className: 'stn-tip', direction: 'top', offset: [0, -6] });
     vMarkers[vsid] = vm;
   });
+  const GAUGE_AGENCY_LABELS = {
+    NO_KART: 'Kartverket (Norway)',
+    IE_MI_TIDE: 'Marine Institute (Ireland)',
+    UK_EA: 'UK Environment Agency',
+    SE_SMHI_SL: 'SMHI Sea Level (Sweden)',
+    AU_QLD_TIDE: 'QLD Gov Storm Tide (Australia)',
+    IOC_SL: 'UNESCO/IOC Sea Level',
+    DFO: 'DFO/CHS',
+    NOAA: 'NOAA CO-OPS',
+  };
+  const gaugeAgencyName = (g) => GAUGE_AGENCY_LABELS[g && g.agency] || (g && g.agency) || 'NOAA CO-OPS';
   Object.entries(gauges).forEach(([gid, g]) => {
     const cm = L.circleMarker([g.lat, g.lon], { radius: 4, weight: 1, color: '#0b1220', fillColor: '#e2e8f0', fillOpacity: .9 }).addTo(map);
-    cm.bindTooltip(`<b>${g.name}</b><br>tide gauge (${g.agency || 'NOAA'})`, { className: 'stn-tip', direction: 'top' });
+    cm.bindTooltip(`<b>${g.name}</b><br>tide gauge (${gaugeAgencyName(g)})`, { className: 'stn-tip', direction: 'top' });
     cm.on('click', () => openDrawer(stations[g.buoy] ? g.buoy : 'g:' + gid));
     gaugeMarkers[gid] = cm;
   });
@@ -255,20 +266,52 @@
       mode = 'warn'; refresh();
     };
   }
+  const scLive = DATA.benchmark && DATA.benchmark.live_scorecard;
+  if ($('livePill') && scLive && (scLive.ai_hs_rmse_m != null)) {
+    const oc = scLive.operational_conformal || DATA.operational_conformal;
+    const covTxt = oc && oc.calibrated_cov80_pct != null
+      ? `Cov80 ${scLive.cov80_pct != null ? scLive.cov80_pct.toFixed(0) : '–'}%→${oc.calibrated_cov80_pct.toFixed(0)}%`
+      : `Cov80 ${scLive.cov80_pct != null ? scLive.cov80_pct.toFixed(0) : '–'}%`;
+    $('livePill').hidden = false;
+    $('livePill').textContent = `Live 30d: ${scLive.ai_hs_rmse_m.toFixed(2)}m vs ${scLive.raw_hs_rmse_m != null ? scLive.raw_hs_rmse_m.toFixed(2) + 'm' : '–'} · ${covTxt}`;
+    $('livePill').onclick = openSkillModal;
+  }
   function openSkillModal() {
     const bm = DATA.benchmark;
     if (!bm || (!bm.wave_overall?.length && !bm.surge_by_lead?.length)) {
       $('skillBody').innerHTML = '<p class="note">Benchmark summary not bundled in this file. Re-run pipeline/run_forecast_v2.py or pipeline/make_replay.py.</p>';
     } else {
       const sc = bm.live_scorecard;
+      const oc = (sc && sc.operational_conformal) || DATA.operational_conformal;
       const scTitle = sc && sc.mode === 'live_rolling'
         ? `Live 30-Day Rolling Scorecard (${sc.n_live_wave_pairs ?? 0} verified wave pairs across ${sc.archived_snapshots ?? 0} runs)`
         : `Live Rolling Archive (${sc ? (sc.n_live_wave_pairs ?? 0) : 0} live pairs · showing Storm Replay Baseline)`;
+      const lbRows = (oc && oc.lead_bands)
+        ? Object.entries(oc.lead_bands).map(([k, v]) => {
+            const bStat = (sc && sc.by_lead_band && sc.by_lead_band[k]) || {};
+            const rng = v.range_h ? `+${v.range_h[0]}–${v.range_h[1]} h` : k;
+            return `<tr><td>${rng}</td><td>${bStat.n_wave_pairs ?? v.n ?? 0}</td><td>${bStat.ai_hs_rmse_m != null ? bStat.ai_hs_rmse_m.toFixed(3) + ' m' : '–'}</td><td>${bStat.raw_hs_rmse_m != null ? bStat.raw_hs_rmse_m.toFixed(3) + ' m' : '–'}</td><td>${v.raw_cov80_pct != null ? v.raw_cov80_pct.toFixed(1) + '%' : '–'}</td><td><b>${v.k_op != null ? '×' + v.k_op.toFixed(3) : '–'}</b> <small style="opacity:.7">(${v.source || 'default'})</small></td></tr>`;
+          }).join('')
+        : '';
+      const regRows = (sc && sc.by_region)
+        ? Object.entries(sc.by_region).filter(([, r]) => (r.n_wave_pairs || 0) >= 16).map(([reg, r]) => {
+            const rs = (oc && oc.region_stats && oc.region_stats[reg]) || {};
+            return `<tr><td>${reg}</td><td>${r.n_wave_pairs}</td><td>${r.ai_hs_rmse_m != null ? r.ai_hs_rmse_m.toFixed(3) + ' m' : '–'}</td><td>${r.raw_hs_rmse_m != null ? r.raw_hs_rmse_m.toFixed(3) + ' m' : '–'}</td><td>${r.cov80_pct != null ? r.cov80_pct.toFixed(1) + '%' : '–'}</td><td>${rs.effective_k_1_24 != null ? '×' + rs.effective_k_1_24.toFixed(3) : '×1.000'}</td></tr>`;
+          }).join('')
+        : '';
       const scHtml = sc ? `<div class="section"><h3>${scTitle}</h3>
-        <table class="modal-tbl"><thead><tr><th>Mode</th><th>Archived Runs</th><th>Wave Pairs</th><th>AI Hs RMSE</th><th>Raw Hs RMSE</th><th>Cov80</th><th>Surge RMSE</th></tr></thead>
-        <tbody><tr><td>${sc.mode}</td><td>${sc.archived_snapshots ?? 0}</td><td>${sc.n_wave_pairs ?? 0}</td><td>${sc.ai_hs_rmse_m != null ? sc.ai_hs_rmse_m.toFixed(3) + ' m' : '–'}</td><td>${sc.raw_hs_rmse_m != null ? sc.raw_hs_rmse_m.toFixed(3) + ' m' : '–'}</td><td>${sc.cov80_pct != null ? sc.cov80_pct.toFixed(1) + '%' : '–'}</td><td>${sc.surge_rmse_m != null ? sc.surge_rmse_m.toFixed(3) + ' m' : '–'}</td></tr></tbody></table></div>` : '';
+        <table class="modal-tbl"><thead><tr><th>Mode</th><th>Archived Runs</th><th>Wave Pairs</th><th>AI Hs RMSE</th><th>Raw Hs RMSE</th><th>Live Cov80 (Base → Cal)</th><th>Surge RMSE</th></tr></thead>
+        <tbody><tr><td>${sc.mode}</td><td>${sc.archived_snapshots ?? 0}</td><td>${sc.n_wave_pairs ?? 0}</td><td>${sc.ai_hs_rmse_m != null ? sc.ai_hs_rmse_m.toFixed(3) + ' m' : '–'}</td><td>${sc.raw_hs_rmse_m != null ? sc.raw_hs_rmse_m.toFixed(3) + ' m' : '–'}</td><td>${sc.cov80_pct != null ? sc.cov80_pct.toFixed(1) + '%' : '–'}${oc && oc.calibrated_cov80_pct != null ? ` → <b>${oc.calibrated_cov80_pct.toFixed(1)}%</b>` : ''}</td><td>${sc.surge_rmse_m != null ? sc.surge_rmse_m.toFixed(3) + ' m' : '–'}</td></tr></tbody></table>
+        ${lbRows ? `<table class="modal-tbl" style="margin-top:8px"><thead><tr><th>Lead Band</th><th>Pairs</th><th>AI Hs RMSE</th><th>Raw Hs RMSE</th><th>Base Live Cov80</th><th>Op. Conformal k</th></tr></thead><tbody>${lbRows}</tbody></table>` : ''}
+        ${regRows ? `<table class="modal-tbl" style="margin-top:8px"><thead><tr><th>Live Region (&ge;16 pairs)</th><th>Pairs</th><th>AI Hs RMSE</th><th>Raw Hs RMSE</th><th>Base Cov80</th><th>Eff. k (1–24h)</th></tr></thead><tbody>${regRows}</tbody></table>` : ''}
+        </div>` : '';
       const wRows = (bm.wave_overall || []).map(r => `<tr><td>${r.model}</td><td>${r.hs_rmse.toFixed(3)} m</td><td>${r.p_mae.toFixed(2)} kW/m</td><td>${r.te_mae != null ? r.te_mae.toFixed(3) + ' s' : '–'}</td><td>${r.crps.toFixed(3)}</td><td>${r.cov80.toFixed(1)}%</td></tr>`).join('');
       const sRows = (bm.surge_by_lead || []).filter(r => [1, 6, 12, 24, 48, 72].includes(r.h)).map(r => `<tr><td>+${r.h} h</td><td>${r.persist.toFixed(3)} m</td><td>${r.ai.toFixed(3)} m</td><td>${r.cov80.toFixed(1)}%</td><td>${r.hit.toFixed(1)}%</td></tr>`).join('');
+      const gs = bm.global_surge_validation;
+      const gsRows = (gs && gs.by_basin || []).map(r => `<tr><td>${r.region} (${r.n_gauges} gauges)</td><td>${(r.n / 1000).toFixed(1)}k</td><td>${r.rmse_persist.toFixed(3)} m</td><td>${r.rmse_ibe.toFixed(3)} m</td><td><b>${r.rmse_ai.toFixed(3)} m</b></td><td>${(r.cov80 * 100).toFixed(1)}%</td><td>${(r.hit_rate * 100).toFixed(1)}%</td></tr>`).join('');
+      const gsHtml = gsRows ? `<div class="section"><h3>Global Storm Surge Held-Out 2025–2026 (Coordinate-Free · 10 UHSLC + 26 NA Gauges)</h3>
+        <table class="modal-tbl"><thead><tr><th>Basin</th><th>Pairs</th><th>Persist RMSE</th><th>IBE RMSE</th><th>Surge AI RMSE</th><th>Cov80</th><th>Flood Hit</th></tr></thead><tbody>${gsRows}</tbody></table>
+        <p class="note" style="margin-top:6px">Harmonic tidal constituents fitted strictly on &le;2023 records (zero leakage); conformal surge intervals calibrated on 2024; evaluated on 2025–2026 international gauges (${gs.intl_overall ? `${(gs.intl_overall.n / 1000).toFixed(0)}k pairs, AI ${gs.intl_overall.rmse_ai.toFixed(3)} m vs Persist ${gs.intl_overall.rmse_persist.toFixed(3)} m, Cov80 ${(gs.intl_overall.cov80 * 100).toFixed(1)}%` : ''}).</p></div>` : '';
       const iv = bm.intl_validation;
       const ivRows = (iv && iv.regions || []).map(r => {
         const aiR = r.local_virtual_rmse ?? r.ai_hs_rmse;
@@ -277,10 +320,10 @@
       }).join('');
       const ivHtml = ivRows ? `<div class="section"><h3>Global Regional Models — IEC TS 62600-101 Held-Out 2025–2026 Audit (Buoy + IMOS Altimetry)</h3>
         <table class="modal-tbl"><thead><tr><th>Region &amp; Verified Feed</th><th>Sites (Pairs)</th><th>Raw Hs</th><th>Local AI (V / B)</th><th>SI</th><th>R²</th><th>Storm P95 RMSE</th><th>Cov80</th><th>DM p</th></tr></thead><tbody>${ivRows}</tbody></table>
-        <p class="note" style="margin-top:6px"><b>Method Disclosure:</b> Offline 2025–2026 benchmarks run strict zero-leakage temporal &amp; spatial splits in <i>hindcast-forced coastal downscaling</i> mode (ERA5-Ocean/marine + ERA5 SST/atmospheric boundary forcing + GEBCO geometry against global government buoys &amp; 18-mission IMOS satellite altimetry shelf tiles); live operational GFS-Wave/ECMWF NWP forecast error is tracked separately in the Live Rolling Scorecard above. North Atlantic cross-validation tests EU_local zero-shot on unseen Iceland/Norway/Orkney/Faroes/Morocco/Azores/Iberia altimetry tiles &amp; Caribbean buoys.</p></div>` : '';
+        <p class="note" style="margin-top:6px"><b>Method Disclosure:</b> Offline 2025–2026 benchmarks run strict zero-leakage temporal &amp; spatial splits in <i>hindcast-forced coastal downscaling</i> mode (ERA5-Ocean/marine + ERA5 SST/atmospheric boundary forcing + GEBCO geometry against global government buoys &amp; 18-mission IMOS satellite altimetry shelf tiles); live operational NWP forecast error &amp; conformal drift calibration are tracked above. <code>North Atlantic</code> is locally trained and validated in dual mode (<code>NATL_local</code>) across MET Norway, NDBC/OOI moorings, and 11 IMOS North Atlantic tiles.</p></div>` : '';
       $('skillBody').innerHTML = scHtml + `
         <div class="section"><h3>North America Held-Out Mean (2024–2025)</h3>
-          <table class="modal-tbl"><thead><tr><th>Model</th><th>Hs RMSE</th><th>Power MAE</th><th>Spectral Te MAE</th><th>CRPS</th><th>Cov80</th></tr></thead><tbody>${wRows}</tbody></table></div>` + ivHtml + `
+          <table class="modal-tbl"><thead><tr><th>Model</th><th>Hs RMSE</th><th>Power MAE</th><th>Spectral Te MAE</th><th>CRPS</th><th>Cov80</th></tr></thead><tbody>${wRows}</tbody></table></div>` + ivHtml + gsHtml + `
         <div class="section"><h3>Atmospheric-Forced Storm Surge by Lead (26 NA Hindcast Gauges)</h3>
           <table class="modal-tbl"><thead><tr><th>Lead</th><th>Persistence RMSE</th><th>Surge AI RMSE</th><th>Cov80</th><th>Flood Hit Rate</th></tr></thead><tbody>${sRows}</tbody></table></div>`;
     }
@@ -556,13 +599,14 @@
     const g = gauges[gid], wlo = rel(g.wl_hist, g.t0), wlf = rel(g.wl_future, g.t0), th = g.thresholds;
     const ser = [{ y: g.twl[1], c: '#2dd4bf' }, { y: g.tide, c: '#94a3b8', dash: '4 3', wd: 1.2 }];
     if (g.stofs_twl) ser.push({ y: g.stofs_twl, c: '#fb923c', dash: '3 3', wd: 1.4 });
+    const isProv = g.provisional_thresholds || (g.agency && g.agency !== 'NOAA');
     return `<div class="section chart"><h3>Total water level at ${g.name} (m above MHHW)</h3>${chart({ series: ser, band: [g.twl[0], g.twl[2], '#2dd4bf'], ymin: Math.min(...g.tide.filter(v => v != null)) - .1,
       refs: [{ v: th.minor, c: '#facc15', label: 'minor flood' }, { v: th.moderate, c: '#fb923c', label: 'moderate' }], obs: wlo, future: wlf, nowIdx: hi })}
-      <div class="chart-legend"><span><i style="background:#2dd4bf"></i>tide + AI surge</span><span><i style="background:#94a3b8"></i>astronomical tide</span>${g.stofs_twl ? '<span><i style="background:#fb923c"></i>NOAA STOFS-2D</span>' : ''}<span>● observed</span></div>${g.agency === 'DFO' ? '<p class="note">Canadian flood levels are provisional (NOAA method applied to the local tide range). Replace them with municipal or ECCC storm-surge alert levels.</p>' : ''}</div>`;
+      <div class="chart-legend"><span><i style="background:#2dd4bf"></i>tide + AI surge</span><span><i style="background:#94a3b8"></i>astronomical tide</span>${g.stofs_twl ? '<span><i style="background:#fb923c"></i>NOAA STOFS-2D</span>' : ''}<span>● observed</span></div>${isProv ? '<p class="note">Provisional flood thresholds (NOAA Sweet et al. 2018 scaling applied to local great diurnal tide range). Verify against local national harbor/authority flood levels.</p>' : ''}</div>`;
   }
   function renderGauge(gid) {
     const g = gauges[gid], w = floodAt(gid, hi);
-    $('detail').innerHTML = `<div class="d-head"><h2>${g.name}</h2><div class="meta">${g.agency === 'DFO' ? 'DFO Canadian Hydrographic Service' : 'NOAA CO-OPS'} tide gauge ${gid} · forecast from ${fmtT(new Date(g.t0))}</div>
+    $('detail').innerHTML = `<div class="d-head"><h2>${g.name}</h2><div class="meta">${gaugeAgencyName(g)} tide gauge ${gid}${g.region ? ` · ${g.region}` : ''} · forecast from ${fmtT(new Date(g.t0))}</div>
       <div class="chips"><span class="chip">Municipal</span><span class="chip">${isReplay ? 'waves from ERA5 point (no live buoy)' : 'waves from live forecast grid (tide gauge)'}</span></div>
       <div class="exp-row"><button class="exp-btn" id="gPrintBtn" type="button">Print EOC Brief</button></div></div>
       <div class="status" style="background:${LVL[w.lvl].c}22;border:1px solid ${LVL[w.lvl].c}66"><span class="dot" style="background:${LVL[w.lvl].c}"></span><div>${LVL[w.lvl].t} at T+${H[hi]} h<small>${w.r.join('<br>') || 'Water level below flood thresholds.'}</small></div></div>` + gaugeChart(gid);
@@ -623,7 +667,7 @@
       ? '<span class="chip" style="border-color:rgba(56,189,248,.45);color:#38bdf8;background:rgba(56,189,248,.12)">✓ Satellite-Validated (IMOS)</span>'
       : '<span class="chip" style="border-color:rgba(52,211,153,.4);color:#34d399;background:rgba(52,211,153,.1)">✓ Buoy-Validated</span>';
     let html = `<div class="d-head"><h2>${s.name}</h2><div class="meta">${titleMeta}</div>
-      <div class="chips">${s.isVirtual ? '<span class="chip">Virtual Buoy (obs-free)</span>' : (s.use || '').split('_').filter(Boolean).map(u => `<span class="chip">${{ mre: 'Wave energy site', municipal: 'Municipal', offshore: 'Offshore ref' }[u] || u}</span>`).join('')}${tierChip}${s.fc_model ? `<span class="chip">${s.fc_model}</span>` : ''}${gids.map(x => `<span class="chip">${gauges[x].agency === 'DFO' ? 'DFO' : 'NOAA'} tide gauge ${gauges[x].name}</span>`).join('')}${!s.isVirtual && s.obs_available === false ? '<span class="chip">no live obs</span>' : ''}</div></div>`;
+      <div class="chips">${s.isVirtual ? '<span class="chip">Virtual Buoy (obs-free)</span>' : (s.use || '').split('_').filter(Boolean).map(u => `<span class="chip">${{ mre: 'Wave energy site', municipal: 'Municipal', offshore: 'Offshore ref' }[u] || u}</span>`).join('')}${tierChip}${s.fc_model ? `<span class="chip">${s.fc_model}</span>` : ''}${gids.map(x => `<span class="chip">${gaugeAgencyName(gauges[x])} tide gauge ${gauges[x].name}</span>`).join('')}${!s.isVirtual && s.obs_available === false ? '<span class="chip">no live obs</span>' : ''}</div></div>`;
     html += `<div class="status" style="background:${LVL[w.lvl].c}22;border:1px solid ${LVL[w.lvl].c}66"><span class="dot" style="background:${LVL[w.lvl].c}"></span><div>${LVL[w.lvl].t} at T+${H[hi]} h<small>${w.r.join('<br>') || 'Conditions within normal range for this site.'}</small></div></div>`;
     const obs = rel(s.obs_hist, s.t0), fut = rel(s.obs_future, s.t0);
     const hsEff = effectiveHs(sid, s);
