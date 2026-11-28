@@ -276,7 +276,7 @@
             (tide + atmospheric storm surge), and operational planning tools worldwide.
           </p>
           <ul>
-            <li><strong>179 buoys (141 live metocean feeds), 44 global tide gauges &amp; 49 hotspots</strong> powered by <strong>10 regional wave models</strong> &amp; <strong>coordinate-free Global Storm Surge v2</strong> (trained on <strong>179 intl + 53 NA/DFO 1974–2026 government buoys</strong>, <strong>36 UHSLC/NOAA/DFO tide gauges</strong>, <strong>104 18-mission 1985–2026 IMOS altimetry tiles</strong>, <strong>ERA5/SST</strong> &amp; <strong>STOFS-2D</strong>)</li>
+            <li><strong>179 buoys (139 live metocean feeds), 44 global tide gauges &amp; 49 hotspots</strong> powered by <strong>10 regional wave models</strong> &amp; <strong>coordinate-free Global Storm Surge v2</strong> (trained on <strong>179 intl + 53 NA/DFO 1974–2026 government buoys</strong>, <strong>36 UHSLC/NOAA/DFO tide gauges</strong>, <strong>104 18-mission 1985–2026 IMOS altimetry tiles</strong>, <strong>ERA5/SST (178/179)</strong> &amp; <strong>STOFS-2D</strong>)</li>
             <li><strong>Global observation-free Virtual Buoys &amp; Live Scorecard:</strong> toggle <em>Virtual Buoy</em> anywhere offshore (blocks inland clicks) and inspect rolling 30-day accuracy &amp; operational conformal calibration in <em>Skill</em></li>
             <li><strong>Joint Wind + Wave + Te O&amp;M scheduler:</strong> RM3/RM5/RM6/PB10 + GO/NO-GO + <em>Calibrate Buoy CSV</em></li>
             <li><strong>EOC &amp; research workflows:</strong> CSV/GeoJSON export, Print EOC Brief &amp; <em>Skill</em> live scorecard modal</li>
@@ -304,11 +304,11 @@
           <div class="card-kicker">Product 2 · Resource &amp; Techno-Economics</div>
           <h2>Global WEC Site Selection Atlas</h2>
           <p>
-            Spatial screening across North America, NW Europe, North Atlantic, Australia, New Zealand, South America, Africa &amp; Indian Ocean, Japan/Pacific &amp; India using bias-corrected hindcasts,
-            Downscaling v2 calibration, and GEBCO coastal bathymetry.
+            Global screening across North America, NW Europe, North Atlantic, Australia, New Zealand, South America, Africa &amp; Indian Ocean, Japan/China &amp; India using 9-basin AI Coastal Downscaling v2,
+            multi-decade (1974–2026) anchored Hs,50 extremes, and GEBCO coastal bathymetry.
           </p>
           <ul>
-            <li><strong>15,763 mapped coastal sites</strong> across 15 regions with depth, shore distance, <strong>NOAA Submarine Cables</strong> &amp; <strong>AIS 2025</strong> overlays</li>
+            <li><strong>15,763 mapped coastal sites</strong> across 15 regions with depth, shore distance, <strong>NOAA + TeleGeography Global Cables (2,391)</strong>, <strong>UNEP-WCMC WDPA Global MPAs</strong> &amp; <strong>AIS</strong> overlays</li>
             <li><strong>4 Sandia WEC architectures + CSV upload:</strong> RM3, RM5, RM6 &amp; PB10 with IEC TS 62600-101 metrics</li>
             <li><strong>Project finance &amp; exports:</strong> Federal ITC (%) &amp; tariff ($/kWh) parity + CSV / GeoJSON export</li>
             <li><strong>Cross-product deep-links:</strong> jump straight into 72h Forecast &amp; Esri Ocean/Satellite views</li>
@@ -361,20 +361,20 @@
             <tr>
               <td>Global 9 International Basins (<span class="mono">2025–2026</span> IEC Audit)</td>
               <td>Out-of-Sample Hs RMSE &amp; Cov80</td>
-              <td class="mono"><span class="ok">0.169–0.234 m</span> (buoy) · <span class="ok">0.181–0.285 m</span> (virtual/alt)</td>
+              <td class="mono"><span class="ok">0.169–0.234 m</span> (buoy) · <span class="ok">0.181–0.284 m</span> (virtual/alt)</td>
               <td>Beats raw model across all 9 basins (EU, NATL, AU, PAC, NZ, SA, ZA, JP/CN, IN; DM <span class="mono">p &le; 0.0094</span>), empirical Cov80 <span class="mono">79.7%–86.4%</span></td>
             </tr>
             <tr>
               <td>Extreme Return <span class="mono">Hs,50</span> (<span class="mono">1978–2026</span> Records)</td>
               <td>111 Multi-Decade Stations &amp; Tiles</td>
               <td class="mono">Median 10-Yr Error <span class="ok">6.6%</span> (bias <span class="mono">+5.22%</span>)</td>
-              <td>Validated against 20–42 year government buoy &amp; 18-mission IMOS satellite altimetry annual maxima (<span class="mono">1985–2026</span>)</td>
+              <td>Validated against 20–42 year government buoy &amp; 18-mission IMOS altimetry annual maxima (<span class="mono">1985–2026</span>); LOSO 3yr→anchored <span class="mono">14.8%→8.3%</span></td>
             </tr>
             <tr>
-              <td>Downscaling v2 (US &amp; Canada)</td>
-              <td>AEP Error vs. High-Res &amp; DFO Buoys</td>
-              <td class="mono">US Spatial CV MAPE <span class="ok">0.0597</span> · DFO Median Error <span class="ok">0.165</span></td>
-              <td>Reduced from ERA5 baseline (<span class="mono">0.1119</span> US MAPE / <span class="mono">0.233</span> DFO error) with 2-regime BC scaling</td>
+              <td>Downscaling v2 (US, CA &amp; Global Atlas)</td>
+              <td>AEP / Energy Error vs. Hindcast &amp; Buoys</td>
+              <td class="mono">US Spatial CV MAPE <span class="ok">0.0597</span> · Intl LOSO |J err| <span class="ok">0.125</span></td>
+              <td>US ERA5 <span class="mono">0.1119→0.0597</span>; DFO BC <span class="mono">0.233→0.165</span>; 94-buoy Intl WAM025 <span class="mono">0.262→0.125</span> (<span class="mono">-52%</span>)</td>
             </tr>
           </tbody>
         </table>
