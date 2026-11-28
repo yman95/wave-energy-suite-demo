@@ -381,9 +381,9 @@
     na: [[44, -105], 3],
     eu: [[51, -10], 4],
     au: [[-34, 147], 4],
-    pac: [[22, 160], 3],
+    pac: [[26, 140], 3],
     za: [[-34, 21], 5],
-    cl: [[-38, -74], 5],
+    cl: [[-35, -66], 4],
   };
   document.querySelectorAll('#regionBar .rbtn[data-region]').forEach(b => {
     b.onclick = () => {
@@ -623,6 +623,9 @@
       EU_ES_DON: 'Basque EUSKOOS Deepwater (Spain)',
       SE_SMHI: 'Sweden SMHI Ocean Data',
       NO_MET: 'MET Norway Coastal Buoys',
+      UK_CCO: 'UK Channel Coastal Observatory',
+      NOWPHAS_JP: 'Japan MLIT NOWPHAS',
+      CN_NMDIS: 'China NMDIS (EMODPACE)',
       AU_QLD: 'Queensland Gov / AusWaves',
       AU_QLD_S3: 'QLD DES / AODN S3',
       AU_IMOS: 'Australia IMOS / AODN',
@@ -633,6 +636,8 @@
       AU_UWA: 'UWA Wave Buoys / AODN',
       AU_SA_DEW: 'SA Dept. Env & Water / AODN',
       AU_PPA: 'Pilbara Ports Authority / AODN',
+      AU_GIPP: 'Gippsland Ports VIC / AODN',
+      AU_FLINDERS: 'Flinders University SA / AODN',
       CDIP_PAC: 'CDIP Pacific Islands (SIO)',
       CDIP_NDBC: 'CDIP / NOAA NDBC',
       KMA_NDBC: 'Korea Met Admin / WMO NDBC',
@@ -654,7 +659,7 @@
       : (s.lat >= -55 && s.lat <= -32 && s.lon >= 163 && s.lon <= 180) ? 'nz_altimetry_validated'
       : (s.lat >= -58 && s.lat <= 13.5 && s.lon >= -92 && s.lon <= -34) ? 'sa_altimetry_validated'
       : (s.lat >= -40 && s.lat <= -18 && s.lon >= 12 && s.lon <= 60) ? 'za_altimetry_validated'
-      : (s.lat >= 21.5 && s.lat <= 49 && s.lon >= 120.5 && s.lon <= 155) ? 'jp_altimetry_validated'
+      : ((s.lat >= 16.5 && s.lat <= 49 && s.lon >= 107.5 && s.lon <= 125.5) || (s.lat >= 23 && s.lat <= 49 && s.lon >= 125.5 && s.lon <= 155)) ? 'jp_altimetry_validated'
       : (s.lat >= -5 && s.lat <= 26 && s.lon >= 35 && s.lon <= 98) ? 'in_altimetry_validated'
       : (s.lat >= -25 && s.lat <= 25 && (s.lon >= 125 || s.lon <= -145)) ? 'pac_local_validated'
       : (s.lon >= -175 && s.lon <= -50 && s.lat >= 24) ? 'na_local_validated'
@@ -669,6 +674,17 @@
     let html = `<div class="d-head"><h2>${s.name}</h2><div class="meta">${titleMeta}</div>
       <div class="chips">${s.isVirtual ? '<span class="chip">Virtual Buoy (obs-free)</span>' : (s.use || '').split('_').filter(Boolean).map(u => `<span class="chip">${{ mre: 'Wave energy site', municipal: 'Municipal', offshore: 'Offshore ref' }[u] || u}</span>`).join('')}${tierChip}${s.fc_model ? `<span class="chip">${s.fc_model}</span>` : ''}${gids.map(x => `<span class="chip">${gaugeAgencyName(gauges[x])} tide gauge ${gauges[x].name}</span>`).join('')}${!s.isVirtual && s.obs_available === false ? '<span class="chip">no live obs</span>' : ''}</div></div>`;
     html += `<div class="status" style="background:${LVL[w.lvl].c}22;border:1px solid ${LVL[w.lvl].c}66"><span class="dot" style="background:${LVL[w.lvl].c}"></span><div>${LVL[w.lvl].t} at T+${H[hi]} h<small>${w.r.join('<br>') || 'Conditions within normal range for this site.'}</small></div></div>`;
+    if (s.live_obs) {
+      const lo = s.live_obs;
+      const parts = [];
+      if (lo.hs != null) parts.push(`Hs ${lo.hs.toFixed(2)}m${lo.hmax != null ? ` (Hmax ${lo.hmax.toFixed(1)}m)` : ''}`);
+      if (lo.tp != null || lo.te != null) parts.push(`Tp ${lo.tp != null ? lo.tp.toFixed(1) + 's' : '–'}${lo.te != null ? ` · Te ${lo.te.toFixed(1)}s` : (lo.tm != null ? ` · Tz ${lo.tm.toFixed(1)}s` : '')}`);
+      if (lo.mwd != null) parts.push(`WaveDir ${lo.mwd}°${lo.spread != null ? ` (±${lo.spread}°)` : ''}`);
+      if (lo.wspd != null) parts.push(`Wind ${lo.wspd.toFixed(1)}${lo.gst != null ? ` (G ${lo.gst.toFixed(1)})` : ''} m/s${lo.wdir != null ? ` @ ${lo.wdir}°` : ''}`);
+      if (lo.pres != null) parts.push(`SLP ${lo.pres.toFixed(1)} hPa`);
+      if (lo.wtmp != null) parts.push(`SST ${lo.wtmp.toFixed(1)}°C${lo.atmp != null ? ` · Air ${lo.atmp.toFixed(1)}°C` : ''}`);
+      if (parts.length) html += `<div class="chips" style="margin-top:6px"><span class="chip" style="border-color:rgba(56,189,248,.35)">Sensor @ ${fmtT(new Date(lo.t))}: ${parts.join(' · ')}</span></div>`;
+    }
     const obs = rel(s.obs_hist, s.t0), fut = rel(s.obs_future, s.t0);
     const hsEff = effectiveHs(sid, s);
     const calInfo = calScales[sid];
